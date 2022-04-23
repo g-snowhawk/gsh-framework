@@ -1,0 +1,18 @@
+{
+    "name": "g-snowhawk/gsh-framework",
+    "type": "library",
+    "description": "G.Snowhawk framework.",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Gsnowhawk\\Common\\" : "src/Common/"
+        }
+    },
+    "require": {
+        "php": ">=7.4.0"
+    },
+    "author": {
+        "name": "Taka G",
+        "homepage": "https://www.p5on.net"
+    }
+}

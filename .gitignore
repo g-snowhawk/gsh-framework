@@ -31,5 +31,5 @@ dw_php_codehinting.config
 *.mno
 
 # Private data
-/src/db/*
-!/src/db/.gitkeep
+/src/Common/db/*
+!/src/Common/db/.gitkeep
