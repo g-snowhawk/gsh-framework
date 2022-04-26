@@ -93,6 +93,7 @@ class DbHandler implements SessionHandlerInterface
         return true;
     }
 
+    #[\ReturnTypeWillChange]
     public function gc($maxlifetime): bool
     {
         $result = $this->db->delete(
