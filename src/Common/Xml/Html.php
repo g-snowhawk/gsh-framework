@@ -128,8 +128,8 @@ class Html extends Dom
 
         if (defined('XML_NAMESPACE') && defined('XML_NAMESPACE_URI')) {
             $ns = XML_NAMESPACE;
+            $ns_uri = XML_NAMESPACE_URI;
             if (preg_match('/<' . preg_quote($ns, '/') . ':[^>]+>/', $source)) {
-                $ns_uri = XML_NAMESPACE_URI;
                 if (preg_match('/<(html|dummy)/i', $source)) {
                     $source = preg_replace('/<(html|dummy)/i', "<$1 xmlns:$ns=\"$ns_uri\"", $source);
                 } elseif (preg_match('/<(\?xml|!doctype)/i', $source)) {
