@@ -33,3 +33,6 @@ dw_php_codehinting.config
 # Private data
 /src/Common/db/*
 !/src/Common/db/.gitkeep
+/vendor
+composer.lock
+phpunit.xml

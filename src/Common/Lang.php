@@ -18,6 +18,8 @@ namespace Gsnowhawk\Common;
  */
 class Lang
 {
+    private static $dictionary;
+
     /**
      * Getter method.
      *
@@ -70,6 +72,14 @@ class Lang
                 $locale = 'En';
             }
         }
+
+        if (defined('DICTIONARY_PATH')) {
+            $phrase = self::lookup(DICTIONARY_PATH, $key, $locale);
+            if (!is_null($phrase)) {
+                return $phrase;
+            }
+        }
+
         $package_suffix = '\\Lang\\'.$locale;
 
         if (is_null($package)) {
@@ -133,5 +143,50 @@ class Lang
         }
 
         return (property_exists($inst, $key)) ? $inst->$key : '';
+    }
+
+    private static function lookup($dictionary_path, $key, $locale)
+    {
+        if (!is_array(self::$dictionary)) {
+            self::$dictionary = [];
+        }
+
+        // Load dictionary from file
+        if (empty(self::$dictionary[$locale])) {
+            self::$dictionary[$locale] = [];
+            $sep = DIRECTORY_SEPARATOR;
+            $path = rtrim($dictionary_path, $sep) . $sep . strtolower($locale);
+            $flatten = function($array, $prefix = null, $separator = '.') use (&$flatten) {
+                $data = [];
+                foreach ($array as $key => $value) {
+                    $newkey = implode($separator, array_filter([$prefix, $key]));
+                    if (is_array($value)) {
+                        $data = array_merge($data, $flatten($value, $newkey, $separator));
+                    } else {
+                        $data[$newkey] = $value;
+                    }
+                }
+
+                return $data;
+            };
+
+            self::$dictionary[$locale] = [];
+            foreach (['json', 'yml'] as $extension) {
+                $file = "{$path}.{$extension}";
+                if (file_exists($file)) {
+                    $dict = null;
+                    if ($extension === 'yml' && is_callable('yaml_parse_file')) {
+                        $dict = yaml_parse_file($file);
+                    } elseif ($extension === 'json') {
+                        $dict = json_decode(file_get_contents($file), true);
+                    }
+                    if (is_array($dict)) {
+                        self::$dictionary[$locale] = array_merge(self::$dictionary[$locale], $flatten($dict));
+                    }
+                }
+            }
+        }
+
+        return self::$dictionary[$locale][$key] ?? self::$dictionary[$locale][strtolower($key)] ?? null;
     }
 }
