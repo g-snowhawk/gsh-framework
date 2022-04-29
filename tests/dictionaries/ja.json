@@ -1,0 +1,8 @@
+{
+    "greeting": {
+        "good_morning": "おはようございます",
+        "good_afternoon": "こんにちは",
+        "good_night": "おやすみなさい"
+    },
+    "greeting.good_evening": "こんばんわ"
+}

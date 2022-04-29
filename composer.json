@@ -8,6 +8,10 @@
             "Gsnowhawk\\Common\\" : "src/Common/"
         }
     },
+    "require-dev": {
+        "php": ">=7.4.0",
+        "phpunit/phpunit": "*"
+    },
     "require": {
         "php": ">=7.4.0"
     },
