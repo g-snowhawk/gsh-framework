@@ -281,7 +281,7 @@ class Mail
      */
     public function to($to = null, $prop = 'to')
     {
-        if (!is_array($to) && strpos($to, ',') !== false) {
+        if (is_string($to) && strpos($to, ',') !== false) {
             $to = array_map('trim', explode(',', $to));
         }
         if (is_null($this->$prop)) {
