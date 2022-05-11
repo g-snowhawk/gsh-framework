@@ -1112,18 +1112,16 @@ class Db
     /**
      * begin transaction.
      *
-     * @param string $identifire
+     * @param string $identifier
      *
      * @return bool
      */
-    public function begin($identifire = '')
+    public function begin($identifier = ''): bool
     {
         if ($this->handler->inTransaction() || $this->handler->beginTransaction()) {
-            if (!empty($identifire)) {
-                $this->query("SAVEPOINT $identifire");
+            if (empty($identifier) || false !== $this->savepoint($identifier)) {
+                return true;
             }
-
-            return true;
         }
 
         return false;
@@ -1134,8 +1132,11 @@ class Db
      *
      * @return bool
      */
-    public function commit()
+    public function commit($identifier = ''): bool
     {
+        if (!empty($identifier)) {
+            return false !== $this->release($identifier);
+        }
         if ($this->handler->commit()) {
             return true;
         }
@@ -1146,19 +1147,17 @@ class Db
     /**
      * rollback transaction.
      *
-     * @param string $identifire
+     * @param string $identifier
      *
      * @return bool
      */
-    public function rollback($identifire = '')
+    public function rollback($identifier = '')
     {
         if (false === $this->handler->inTransaction()) {
             return true;
         }
-        if (!empty($identifire)) {
-            if ($this->query("ROLLBACK TO SAVEPOINT $identifire")) {
-                return true;
-            }
+        if (!empty($identifier)) {
+            return false !== $this->query("ROLLBACK TO SAVEPOINT $identifier");
         }
         try {
             if ($this->handler->rollBack()) {
@@ -1170,6 +1169,26 @@ class Db
         }
 
         return self::exception($this->error_message, $this->error_code, $e);
+    }
+
+    /**
+     * add savepoint to transaction.
+     *
+     * @return mixed
+     */
+    public function savepoint($identifier = '')
+    {
+        return $this->query("SAVEPOINT $identifier");
+    }
+
+    /**
+     * release savepoint from transaction.
+     *
+     * @return mixed
+     */
+    public function release($identifier = '')
+    {
+        return $this->query("RELEASE SAVEPOINT $identifier");
     }
 
     /**
