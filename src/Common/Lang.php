@@ -156,7 +156,7 @@ class Lang
             self::$dictionary[$locale] = [];
             $sep = DIRECTORY_SEPARATOR;
             $path = rtrim($dictionary_path, $sep) . $sep . strtolower($locale);
-            $flatten = function($array, $prefix = null, $separator = '.') use (&$flatten) {
+            $flatten = function ($array, $prefix = null, $separator = '.') use (&$flatten) {
                 $data = [];
                 foreach ($array as $key => $value) {
                     $newkey = implode($separator, array_filter([$prefix, $key]));
