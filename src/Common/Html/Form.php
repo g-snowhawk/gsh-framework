@@ -422,9 +422,9 @@ class Form
                                 $data[$name]['choices'] = [];
                             }
                             //if (is_array($choice)) {
-                        //    $data[$name]['choices'] = array_merge($data[$name]['choices'], $choice);
+                            //    $data[$name]['choices'] = array_merge($data[$name]['choices'], $choice);
                             //} else {
-                        //    $data[$name]['choices'][] = $choice;
+                            //    $data[$name]['choices'][] = $choice;
                             //}
                             if (empty($name_key)) {
                                 $data[$name]['choices'][] = $choice;
