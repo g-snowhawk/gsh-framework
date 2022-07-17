@@ -376,21 +376,21 @@ class Db
                     foreach ($options as $key => $value) {
                         $param = ($is_hash) ? ":{$key}" : ++$n;
                         switch ($bind[$key]) {
-                        case 'blob':
-                            $type = PDO::PARAM_LOB;
-                            break;
-                        case 'bool':
-                            $type = PDO::PARAM_BOOL;
-                            break;
-                        case 'int':
-                            $type = PDO::PARAM_INT;
-                            break;
-                        case 'null':
-                            $type = PDO::PARAM_NULL;
-                            break;
-                        default:
-                            $type = PDO::PARAM_STR;
-                            break;
+                            case 'blob':
+                                $type = PDO::PARAM_LOB;
+                                break;
+                            case 'bool':
+                                $type = PDO::PARAM_BOOL;
+                                break;
+                            case 'int':
+                                $type = PDO::PARAM_INT;
+                                break;
+                            case 'null':
+                                $type = PDO::PARAM_NULL;
+                                break;
+                            default:
+                                $type = PDO::PARAM_STR;
+                                break;
                         }
                         $this->statement->bindValue($param, $value, $type);
                     }
@@ -427,21 +427,21 @@ class Db
                     foreach ($options as $key => $value) {
                         $param = ($is_hash) ? ":{$key}" : ++$n;
                         switch ($bind[$key]) {
-                        case 'blob':
-                            $type = PDO::PARAM_LOB;
-                            break;
-                        case 'bool':
-                            $type = PDO::PARAM_BOOL;
-                            break;
-                        case 'int':
-                            $type = PDO::PARAM_INT;
-                            break;
-                        case 'null':
-                            $type = PDO::PARAM_NULL;
-                            break;
-                        default:
-                            $type = PDO::PARAM_STR;
-                            break;
+                            case 'blob':
+                                $type = PDO::PARAM_LOB;
+                                break;
+                            case 'bool':
+                                $type = PDO::PARAM_BOOL;
+                                break;
+                            case 'int':
+                                $type = PDO::PARAM_INT;
+                                break;
+                            case 'null':
+                                $type = PDO::PARAM_NULL;
+                                break;
+                            default:
+                                $type = PDO::PARAM_STR;
+                                break;
                         }
                         $this->statement->bindValue($param, $value, $type);
                     }

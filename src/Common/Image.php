@@ -423,14 +423,14 @@ class Image
         $dir = dirname($path);
         if (is_writable($dir)) {
             switch ($this->mime) {
-            case 'image/gif':
-                return imagegif($this->out, $path);
-            case 'image/jpeg':
-                return imagejpeg($this->out, $path, $this->jpeg_quality);
-            case 'image/png':
-                return imagepng($this->out, $path, $this->png_quality);
-            default:
-                throw new Exception("{$this->mime} isn't handled.");
+                case 'image/gif':
+                    return imagegif($this->out, $path);
+                case 'image/jpeg':
+                    return imagejpeg($this->out, $path, $this->jpeg_quality);
+                case 'image/png':
+                    return imagepng($this->out, $path, $this->png_quality);
+                default:
+                    throw new Exception("{$this->mime} isn't handled.");
             }
         } else {
             throw new Exception("$dir isn't writable.");
