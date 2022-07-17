@@ -570,7 +570,7 @@ namespace Gsnowhawk\Common\Xml {
 
             $elm = $this->dom->getElementsByTagName('html');
             if ($elm && $elm->item(0)) {
-            // NooP
+                // NooP
             } else {
                 $rootNodes = $this->dom->childNodes;
                 if (is_object($rootNodes)) {
