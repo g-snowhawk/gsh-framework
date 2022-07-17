@@ -294,8 +294,6 @@ class Html extends Dom
             $tag = (empty($match[1])) ? '*' : $match[1];
             $selector = $match[2];
             $query = sprintf('.//%s[contains(@class,"%s")]', $tag, $selector);
-            var_dump($query);
-            exit;
         }
 
         $xpath = new DOMXPath($this->dom);
