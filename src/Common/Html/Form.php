@@ -298,56 +298,56 @@ class Form
                 }
 
                 switch ($node_name) {
-                case 'button':
-                    if (preg_match('/value="([^"]*)"/i', $attrs, $match)) {
-                        $value = $match[1];
-                    }
-                    if (preg_match('/type="([^"]+)"/i', $attrs, $match)) {
-                        $type = $match[1];
-                    }
-                    break;
-                case 'input':
-                    if (preg_match('/value="([^"]*)"/i', $attrs, $match)) {
-                        $value = $match[1];
-                    }
-                    if (preg_match('/type="([^"]+)"/i', $attrs, $match)) {
-                        $type = $match[1];
-                        if ($type === 'checkbox' || $type === 'radio') {
-                            if (stripos($attrs, 'checked') !== false) {
-                                $choice = $value;
-                            }
+                    case 'button':
+                        if (preg_match('/value="([^"]*)"/i', $attrs, $match)) {
+                            $value = $match[1];
                         }
-                    }
-                    break;
-                case 'select':
-                    if (preg_match_all('/<option([^>]*)>(.+?)<\/option>/is', $child_nodes, $hits)) {
-                        foreach ($hits[1] as $n => $attr) {
-                            $val = (preg_match('/value="([^"]*)"/i', $attr, $match)) ? $match[1] : $hits[2][$n];
-                            if (is_null($value)) {
-                                $value = [];
-                            }
-                            $value[] = $val;
-                            if (stripos($attr, 'selected') !== false) {
-                                if (is_null($choice)) {
-                                    $choice = [];
-                                }
-                                if (is_null($name_key)) {
-                                    $choice = $val;
-                                } else {
-                                    $choice[] = $val;
+                        if (preg_match('/type="([^"]+)"/i', $attrs, $match)) {
+                            $type = $match[1];
+                        }
+                        break;
+                    case 'input':
+                        if (preg_match('/value="([^"]*)"/i', $attrs, $match)) {
+                            $value = $match[1];
+                        }
+                        if (preg_match('/type="([^"]+)"/i', $attrs, $match)) {
+                            $type = $match[1];
+                            if ($type === 'checkbox' || $type === 'radio') {
+                                if (stripos($attrs, 'checked') !== false) {
+                                    $choice = $value;
                                 }
                             }
                         }
-                        if (is_null($choice) && !empty($value)) {
-                            $choice = (is_null($name_key)) ? $value[0] : [$value[0]];
+                        break;
+                    case 'select':
+                        if (preg_match_all('/<option([^>]*)>(.+?)<\/option>/is', $child_nodes, $hits)) {
+                            foreach ($hits[1] as $n => $attr) {
+                                $val = (preg_match('/value="([^"]*)"/i', $attr, $match)) ? $match[1] : $hits[2][$n];
+                                if (is_null($value)) {
+                                    $value = [];
+                                }
+                                $value[] = $val;
+                                if (stripos($attr, 'selected') !== false) {
+                                    if (is_null($choice)) {
+                                        $choice = [];
+                                    }
+                                    if (is_null($name_key)) {
+                                        $choice = $val;
+                                    } else {
+                                        $choice[] = $val;
+                                    }
+                                }
+                            }
+                            if (is_null($choice) && !empty($value)) {
+                                $choice = (is_null($name_key)) ? $value[0] : [$value[0]];
+                            }
                         }
-                    }
-                    $type = $node_name;
-                    break;
-                case 'textarea':
-                    $value = $child_nodes;
-                    $type = $node_name;
-                    break;
+                        $type = $node_name;
+                        break;
+                    case 'textarea':
+                        $value = $child_nodes;
+                        $type = $node_name;
+                        break;
                 }
 
                 if ($no_buttons) {
@@ -357,82 +357,82 @@ class Form
                 }
 
                 switch (true) {
-                case !isset($data[$name]):
-                    if (!is_null($name_key) && !is_array($value)) {
-                        $value = (empty($name_key)) ? [$value] : [$name_key => $value];
-                    }
-                    $data[$name] = [
-                        'tag' => $node_name,
-                        'type' => $type,
-                        'value' => $value,
-                    ];
-                    if (!is_null($choice)) {
-                        if (!is_null($name_key)) {
-                            $choice = (empty($name_key)) ? [$choice] : [$name_key => $choice];
+                    case !isset($data[$name]):
+                        if (!is_null($name_key) && !is_array($value)) {
+                            $value = (empty($name_key)) ? [$value] : [$name_key => $value];
                         }
-                        $data[$name]['choices'] = $choice;
-                    }
-                    break;
-                case is_null($name_key):
-                    if ($type === 'checkbox' || $type === 'radio') {
-                        if (!isset($data[$name]['value'])) {
-                            $data[$name]['value'] = [];
-                        } elseif (!is_array($data[$name]['value'])) {
-                            $data[$name]['value'] = [$data[$name]['value']];
-                        }
-                        $data[$name]['value'][] = $value;
-
-                        if ($data[$name]['type'] !== $type && is_null($choice)) {
-                            $data[$name]['type'] = $type;
-                            $choice = $data[$name]['value'];
-                        }
-                    } else {
-                        $data[$name]['value'] = $value;
-                    }
-                    if (!is_null($choice)) {
-                        if (is_array($choice)) {
-                            $choice = array_shift($choice);
-                        }
-                        $data[$name]['choices'] = $choice;
-                    }
-                    break;
-                default:
-                    //if (!is_array($data[$name]['value'])) {
-                    //    $data[$name]['value'] = [$data[$name]['value']];
-                    //}
-                    //if (is_array($value)) {
-                    //    $data[$name]['value'] = array_merge($data[$name]['value'], $value);
-                    //} else {
-                    //    $data[$name]['value'][] = $value;
-                    //}
-                    if (empty($name_key)) {
-                        $data[$name]['value'][] = $value;
-                    } else {
-                        if ($type === 'radio' && isset($data[$name]['value'][$name_key])) {
-                            if (!is_array($data[$name]['value'][$name_key])) {
-                                $data[$name]['value'][$name_key] = [$data[$name]['value'][$name_key]];
+                        $data[$name] = [
+                            'tag' => $node_name,
+                            'type' => $type,
+                            'value' => $value,
+                        ];
+                        if (!is_null($choice)) {
+                            if (!is_null($name_key)) {
+                                $choice = (empty($name_key)) ? [$choice] : [$name_key => $choice];
                             }
-                            $data[$name]['value'][$name_key][] = $value;
+                            $data[$name]['choices'] = $choice;
+                        }
+                        break;
+                    case is_null($name_key):
+                        if ($type === 'checkbox' || $type === 'radio') {
+                            if (!isset($data[$name]['value'])) {
+                                $data[$name]['value'] = [];
+                            } elseif (!is_array($data[$name]['value'])) {
+                                $data[$name]['value'] = [$data[$name]['value']];
+                            }
+                            $data[$name]['value'][] = $value;
+
+                            if ($data[$name]['type'] !== $type && is_null($choice)) {
+                                $data[$name]['type'] = $type;
+                                $choice = $data[$name]['value'];
+                            }
                         } else {
-                            $data[$name]['value'][$name_key] = $value;
+                            $data[$name]['value'] = $value;
                         }
-                    }
-                    if (!is_null($choice)) {
-                        if (!isset($data[$name]['choices'])) {
-                            $data[$name]['choices'] = [];
+                        if (!is_null($choice)) {
+                            if (is_array($choice)) {
+                                $choice = array_shift($choice);
+                            }
+                            $data[$name]['choices'] = $choice;
                         }
-                        //if (is_array($choice)) {
-                        //    $data[$name]['choices'] = array_merge($data[$name]['choices'], $choice);
+                        break;
+                    default:
+                        //if (!is_array($data[$name]['value'])) {
+                    //    $data[$name]['value'] = [$data[$name]['value']];
+                        //}
+                        //if (is_array($value)) {
+                    //    $data[$name]['value'] = array_merge($data[$name]['value'], $value);
                         //} else {
-                        //    $data[$name]['choices'][] = $choice;
+                    //    $data[$name]['value'][] = $value;
                         //}
                         if (empty($name_key)) {
-                            $data[$name]['choices'][] = $choice;
+                            $data[$name]['value'][] = $value;
                         } else {
-                            $data[$name]['choices'][$name_key] = $choice;
+                            if ($type === 'radio' && isset($data[$name]['value'][$name_key])) {
+                                if (!is_array($data[$name]['value'][$name_key])) {
+                                    $data[$name]['value'][$name_key] = [$data[$name]['value'][$name_key]];
+                                }
+                                $data[$name]['value'][$name_key][] = $value;
+                            } else {
+                                $data[$name]['value'][$name_key] = $value;
+                            }
                         }
-                    }
-                    break;
+                        if (!is_null($choice)) {
+                            if (!isset($data[$name]['choices'])) {
+                                $data[$name]['choices'] = [];
+                            }
+                            //if (is_array($choice)) {
+                            //    $data[$name]['choices'] = array_merge($data[$name]['choices'], $choice);
+                            //} else {
+                            //    $data[$name]['choices'][] = $choice;
+                            //}
+                            if (empty($name_key)) {
+                                $data[$name]['choices'][] = $choice;
+                            } else {
+                                $data[$name]['choices'][$name_key] = $choice;
+                            }
+                        }
+                        break;
                 }
             }
 
