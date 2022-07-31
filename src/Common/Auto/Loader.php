@@ -131,7 +131,10 @@ class Loader
         if (empty($className)) {
             return false;
         }
-        if (false === $path = self::convertNameToPath($className, true)) {
+        if (class_exists($className)) {
+            $tmp = new \ReflectionClass($className);
+            $path = $tmp->getFileName();
+        } elseif (false === $path = self::convertNameToPath($className, true)) {
             return false;
         }
 
