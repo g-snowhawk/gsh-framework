@@ -110,7 +110,7 @@ namespace Gsnowhawk\Common\Xml {
          * @param bool   $ishtml
          * @param string $ishtml
          */
-        public function __construct($template, $ishtml = false)
+        public function __construct($template, $ishtml = false, $exception = false)
         {
             try {
                 $source = (is_file($template)) ? file_get_contents($template) : $template;
@@ -148,7 +148,7 @@ namespace Gsnowhawk\Common\Xml {
             $this->inEscapeCdata();
 
             // Call parent constructor.
-            parent::__construct($this->orgSource);
+            parent::__construct($this->orgSource, $ishtml, $exception);
 
             self::setIdAttrs($this->dom);
 

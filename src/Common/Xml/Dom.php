@@ -57,10 +57,10 @@ class Dom
      * @param mixed $source
      * @param bool  $ishtml
      */
-    public function __construct($source, $ishtml = false)
+    public function __construct($source, $ishtml = false, $exception = false)
     {
         $this->pi = preg_match("/<\?xml[^>]+>/", $source);
-        $this->dom = $this->load($source);
+        $this->dom = $this->load($source, $exception);
     }
 
     /**
@@ -95,7 +95,7 @@ class Dom
      * @param string $template
      * @return mixed
      */
-    public function load($template)
+    public function load($template, $exception = false)
     {
         clearstatcache();
         $dom = new DOMDocument();
@@ -175,6 +175,9 @@ class Dom
             }
             set_error_handler($old_error_handler);
             if (!empty($this->error)) {
+                if (false !== $exception) {
+                    throw new DomException($this->error);
+                }
                 trigger_error($this->error, E_USER_ERROR);
             }
         } else {
