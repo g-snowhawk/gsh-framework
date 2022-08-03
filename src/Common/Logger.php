@@ -22,7 +22,7 @@ class Logger
     public function __construct($source, $format)
     {
         $this->format = $format;
-        if (is_object($source) && is_a($source, 'Db')) {
+        if (is_object($source) && is_a($source, 'Gsnowhawk\\Common\\Db')) {
             $this->db = clone $source;
             $this->format = $this->db->prepare($format);
         } elseif (file_exists($source)) {
