@@ -9,7 +9,6 @@
  */
 
 namespace Gsnowhawk\Common\Xml {
-
     use DOMNode;
     use DOMXPath;
     use ErrorException;
@@ -1394,11 +1393,9 @@ namespace Gsnowhawk\Common\Xml {
             return implode($sep, $links);
         }
     }
-
 }
 
 namespace {
-
     use Gsnowhawk\Common\Xml\Dom\NodeList;
 
     class HTMLElement extends DOMElement
@@ -1775,5 +1772,4 @@ namespace {
             return;
         }
     }
-
 }
