@@ -76,8 +76,7 @@ class Format extends Tags
      */
     private function parse()
     {
-        $pattern_comment = '/^(\s*)(<!--(((?'
-            . '>[^(<!--)(-->)]*)|(?2))*)-->)([\s]*)/s';
+        $pattern_comment = '/^(\s*)(<!--.*?-->)([\s]*)/s';
         $pattern_dtd = '/^[\s]*<!([a-zA-Z]+)([^>]*)>([\s]*)/s';
         $pattern_end_tag = '/^[\s]*<\/([^\s>]+)([^>]*)>([\s]*)/s';
         $pattern_start_tag = '/^[\s]*(<(((?'.'>[^<>]+)|(?1))*)>)([\s]*)/s';
@@ -95,7 +94,6 @@ class Format extends Tags
             $this->formatted .= $nl.$indent.$match[2];
             $this->type = 'comment';
             $this->source = preg_replace($pattern_comment, '', $this->source, 1);
-            $match[3] = $match[5];
         }
 
         // DTD
