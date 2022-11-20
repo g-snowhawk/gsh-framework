@@ -850,7 +850,7 @@ class Mail
 
     public static function noreplyAt($user_name = 'no-reply')
     {
-        $host = Environment::server('http_host');
+        $host = Environment::server('http_host') ?? '';
         $host = preg_replace('/:[0-9]+$/', '', $host);
         if (preg_match('/^[0-9:\.]+$/', $host)) {
             $host = gethostbyaddr($host);
