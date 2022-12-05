@@ -438,9 +438,10 @@ class File
             return file_exists($path);
         }
 
+        $physical_path = realpath($path);
         foreach ($inc_dirs as $dir) {
             $pattern = '/^'.preg_quote($dir, '/').'/i';
-            if (preg_match($pattern, $path)) {
+            if (preg_match($pattern, $physical_path)) {
                 return file_exists($path);
             }
         }
