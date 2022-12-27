@@ -129,7 +129,8 @@ class Html
                 $encTo = 'EUC-CN';
                 break;
             case 'none':
-                $encTo = 'HTML-ENTITIES';
+                $encTo = mb_internal_encoding();
+                $source = mb_encode_numericentity($source, [0x80, 0x10ffff, 0, 0x1fffff], $encFrom);
                 $enc = '';
                 break;
             default:

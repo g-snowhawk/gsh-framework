@@ -49,8 +49,8 @@ class Select
                 $optValue = $opt->getAttribute('value');
             }
             $attvalue = Html::rewindEntityReference($optValue);
-            $entities = mb_convert_encoding($attvalue, 'HTML-ENTITIES', mb_internal_encoding());
-            $decoders = mb_convert_encoding($attvalue, mb_internal_encoding(), 'HTML-ENTITIES');
+            $entities = mb_encode_numericentity($attvalue, [0x80, 0x10ffff, 0, 0x1fffff]);
+            $decoders = mb_decode_numericentity($attvalue, [0x80, 0x10ffff, 0, 0x1fffff]);
             if ((is_array($val) && (in_array($attvalue, $val) || in_array($entities, $val) || in_array($decoders, $val))) ||
                 ($attvalue == $val || $entities == $val || $decoders == $val)
             ) {
