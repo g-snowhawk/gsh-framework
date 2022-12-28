@@ -1011,12 +1011,12 @@ namespace Gsnowhawk\Common\Xml {
             if ($ishtml) {
                 $source = preg_replace_callback(
                     "/<([A-Z]+)(([\s]+[^>]+)?)>/",
-                    'self::openTag',
+                    self::class.'::openTag',
                     $source
                 );
                 $source = preg_replace_callback(
                     "/<\/([A-Z]+)>/",
-                    'self::closeTag',
+                    self::class.'::closeTag',
                     $source
                 );
             }

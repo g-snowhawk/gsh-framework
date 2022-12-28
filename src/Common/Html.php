@@ -130,7 +130,7 @@ class Html
                 break;
             case 'none':
                 $encTo = mb_internal_encoding();
-                $source = mb_encode_numericentity($source, [0x80, 0x10ffff, 0, 0x1fffff], $encFrom);
+                $source = mb_encode_numericentity($source, Text::CONVMAP, $encFrom);
                 $enc = '';
                 break;
             default:

@@ -19,7 +19,7 @@ namespace Gsnowhawk\Common;
 class Pagination
 {
     private $current_page;
-    private $max_per_page;
+    private $max_per_pages;
     private $total_pages;
     private $total_records;
     private $link_count;
@@ -51,7 +51,7 @@ class Pagination
     public function __clone()
     {
         $this->current_page = null;
-        $this->max_per_page = null;
+        $this->max_per_pages = null;
         $this->total_records = null;
         $this->total_pages = null;
         $this->link_count = null;

@@ -90,7 +90,7 @@ class Loader
      */
     public static function register($prepend = false)
     {
-        return spl_autoload_register('self::autoLoad', true, $prepend);
+        return spl_autoload_register(self::class.'::autoLoad', true, $prepend);
     }
 
     /**
@@ -193,5 +193,16 @@ class Loader
         }
 
         return $path;
+    }
+
+    public static function parentHasMethod($class, string $method)
+    {
+        foreach (class_parents($class) as $parent) {
+            if (is_callable([$parent, $method]) || method_exists($parent, $method)) {
+                return $parent;
+            }
+        }
+
+        return null;
     }
 }

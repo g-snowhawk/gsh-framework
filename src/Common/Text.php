@@ -27,6 +27,11 @@ define('UTF8_BOM', chr(0xEF).chr(0xBB).chr(0xBF));
 class Text
 {
     /**
+     * Map for mb_encode_numericentity|mb_decode_numericentity
+     */
+    const CONVMAP = [0x80, 0x10ffff, 0, 0x1fffff];
+
+    /**
      * supported encodings.
      *
      * @param string $enc

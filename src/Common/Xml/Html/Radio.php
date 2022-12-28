@@ -10,6 +10,7 @@
 
 namespace Gsnowhawk\Common\Xml\Html;
 
+use Gsnowhawk\Common\Text;
 use Gsnowhawk\Common\Xml\Dom;
 use Gsnowhawk\Common\Xml\Html;
 
@@ -37,8 +38,8 @@ class Radio
     public static function setValue($fmObj, $html, $element, $value)
     {
         $attvalue = Html::rewindEntityReference($element->getAttribute('value'));
-        $entities = mb_encode_numericentity($attvalue, [0x80, 0x10ffff, 0, 0x1fffff]);
-        $decoders = mb_decode_numericentity($attvalue, [0x80, 0x10ffff, 0, 0x1fffff]);
+        $entities = mb_encode_numericentity($attvalue, Text::CONVMAP);
+        $decoders = mb_decode_numericentity($attvalue, Text::CONVMAP);
         if ($value == $attvalue || $value == $entities || $value == $decoders) {
             $element->setAttribute('checked', 'checked');
         } else {
