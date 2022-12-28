@@ -37,8 +37,8 @@ class Radio
     public static function setValue($fmObj, $html, $element, $value)
     {
         $attvalue = Html::rewindEntityReference($element->getAttribute('value'));
-        $entities = mb_convert_encoding($attvalue, 'HTML-ENTITIES', mb_internal_encoding());
-        $decoders = mb_convert_encoding($attvalue, mb_internal_encoding(), 'HTML-ENTITIES');
+        $entities = mb_encode_numericentity($attvalue, [0x80, 0x10ffff, 0, 0x1fffff]);
+        $decoders = mb_decode_numericentity($attvalue, [0x80, 0x10ffff, 0, 0x1fffff]);
         if ($value == $attvalue || $value == $entities || $value == $decoders) {
             $element->setAttribute('checked', 'checked');
         } else {

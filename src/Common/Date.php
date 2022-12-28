@@ -59,33 +59,38 @@ class Date
             $gengo = '';
             $gengo_short = '';
         }
+
+        $decode = function ($entity) {
+            return mb_decode_numericentity($entity, [0x80, 0x10ffff, 0, 0x1fffff], 'UTF-8');
+        };
+
         // Meiji
-        elseif ($timestamp < strtotime('1912-07-30')) {
-            $gengo = mb_convert_encoding('&#26126;&#27835;', 'UTF-8', 'HTML-ENTITIES');
+        if ($timestamp < strtotime('1912-07-30')) {
+            $gengo = $decode('&#26126;&#27835;');
             $gengo_short = 'M';
             $year -= 1867;
         }
         // Taisho
         elseif ($timestamp < strtotime('1926-12-25')) {
-            $gengo = mb_convert_encoding('&#22823;&#27491;', 'UTF-8', 'HTML-ENTITIES');
+            $gengo = $decode('&#22823;&#27491;');
             $gengo_short = 'T';
             $year -= 1911;
         }
         // Showa
         elseif ($timestamp < strtotime('1989-0l-08')) {
-            $gengo = mb_convert_encoding('&#26157;&#21644;', 'UTF-8', 'HTML-ENTITIES');
+            $gengo = $decode('&#26157;&#21644;');
             $gengo_short = 'S';
             $year -= 1925;
         }
         // Heisei
         elseif ($timestamp < strtotime('2019-05-01')) {
-            $gengo = mb_convert_encoding('&#24179;&#25104;', 'UTF-8', 'HTML-ENTITIES');
+            $gengo = $decode('&#24179;&#25104;');
             $gengo_short = 'H';
             $year -= 1988;
         }
         // Reiwa
         else {
-            $gengo = mb_convert_encoding('&#20196;&#21644;', 'UTF-8', 'HTML-ENTITIES');
+            $gengo = $decode('&#20196;&#21644;');
             $gengo_short = 'R';
             $year -= 2018;
         }
@@ -95,7 +100,7 @@ class Date
 
         $full_gengo = "$gengo$year";
         if ($gannen !== false && $year === 1) {
-            $full_gengo = $gengo.mb_convert_encoding('&#20803;', 'UTF-8', 'HTML-ENTITIES');
+            $full_gengo = $gengo.$decode('&#20803;');
         }
 
         return str_replace(['Q','q'], [$full_gengo,"$gengo_short$year"], $datestr);
