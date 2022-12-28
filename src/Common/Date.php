@@ -60,12 +60,12 @@ class Date
             $gengo_short = '';
         }
 
-        $decode = function($entity) {
+        $decode = function ($entity) {
             return mb_decode_numericentity($entity, [0x80, 0x10ffff, 0, 0x1fffff], 'UTF-8');
-        });
+        };
 
         // Meiji
-        elseif ($timestamp < strtotime('1912-07-30')) {
+        if ($timestamp < strtotime('1912-07-30')) {
             $gengo = $decode('&#26126;&#27835;');
             $gengo_short = 'M';
             $year -= 1867;
