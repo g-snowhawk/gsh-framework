@@ -10,9 +10,10 @@
 
 namespace Gsnowhawk\Common\Xml\Html;
 
+use Gsnowhawk\Common\Text;
+use Gsnowhawk\Common\Variable;
 use Gsnowhawk\Common\Xml\Dom;
 use Gsnowhawk\Common\Xml\Html;
-use Gsnowhawk\Common\Variable;
 
 /**
  * HTML form checkbox class.
@@ -40,8 +41,8 @@ class Checkbox
     public static function setValue($fmObj, $html, $element, $name, $value, $sec)
     {
         $attvalue = Html::rewindEntityReference($element->getAttribute('value'));
-        $entities = mb_encode_numericentity($attvalue, [0x80, 0x10ffff, 0, 0x1fffff]);
-        $decoders = mb_decode_numericentity($attvalue, [0x80, 0x10ffff, 0, 0x1fffff]);
+        $entities = mb_encode_numericentity($attvalue, Text::CONVMAP);
+        $decoders = mb_decode_numericentity($attvalue, Text::CONVMAP);
         if (Variable::isHash($value)) {
             if (preg_match("/.+\[([a-zA-Z0-9\-_]+)\]/", $name, $match)) {
                 $sec = $match[1];

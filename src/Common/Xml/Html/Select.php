@@ -10,6 +10,7 @@
 
 namespace Gsnowhawk\Common\Xml\Html;
 
+use Gsnowhawk\Common\Text;
 use Gsnowhawk\Common\Xml\Html;
 
 /**
@@ -49,8 +50,8 @@ class Select
                 $optValue = $opt->getAttribute('value');
             }
             $attvalue = Html::rewindEntityReference($optValue);
-            $entities = mb_encode_numericentity($attvalue, [0x80, 0x10ffff, 0, 0x1fffff]);
-            $decoders = mb_decode_numericentity($attvalue, [0x80, 0x10ffff, 0, 0x1fffff]);
+            $entities = mb_encode_numericentity($attvalue, Text::CONVMAP);
+            $decoders = mb_decode_numericentity($attvalue, Text::CONVMAP);
             if ((is_array($val) && (in_array($attvalue, $val) || in_array($entities, $val) || in_array($decoders, $val))) ||
                 ($attvalue == $val || $entities == $val || $decoders == $val)
             ) {

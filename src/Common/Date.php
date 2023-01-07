@@ -10,6 +10,8 @@
 
 namespace Gsnowhawk\Common;
 
+use Gsnowhawk\Common\Text;
+
 /**
  * Date class.
  *
@@ -61,7 +63,7 @@ class Date
         }
 
         $decode = function ($entity) {
-            return mb_decode_numericentity($entity, [0x80, 0x10ffff, 0, 0x1fffff], 'UTF-8');
+            return mb_decode_numericentity($entity, Text::CONVMAP, 'UTF-8');
         };
 
         // Meiji
