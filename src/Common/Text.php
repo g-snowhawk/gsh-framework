@@ -29,7 +29,7 @@ class Text
     /**
      * Map for mb_encode_numericentity|mb_decode_numericentity
      */
-    const CONVMAP = [0x80, 0x10ffff, 0, 0x1fffff];
+    public const CONVMAP = [0x80, 0x10ffff, 0, 0x1fffff];
 
     /**
      * supported encodings.
