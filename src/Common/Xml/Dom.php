@@ -52,6 +52,13 @@ class Dom
     private $error = '';
 
     /**
+     * flag for Parse error
+     *
+     * @var bool
+     */
+    protected $parseError = false;
+
+    /**
      * Object constructor.
      *
      * @param mixed $source
