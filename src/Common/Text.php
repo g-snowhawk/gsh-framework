@@ -276,10 +276,10 @@ class Text
 
     public static function formatPhonenumber($value, $separator = '-')
     {
-        $source = __DIR__ . '/data/areacode';
+        $source = __DIR__ . '/db/areacode';
 
         if (empty($value) || !file_exists($source)) {
-            return '';
+            return $value;
         }
 
         $db = new PDO("sqlite:$source");
