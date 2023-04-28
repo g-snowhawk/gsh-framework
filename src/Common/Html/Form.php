@@ -402,12 +402,12 @@ class Form
                         break;
                     default:
                         //if (!is_array($data[$name]['value'])) {
-                    //    $data[$name]['value'] = [$data[$name]['value']];
+                        //    $data[$name]['value'] = [$data[$name]['value']];
                         //}
                         //if (is_array($value)) {
-                    //    $data[$name]['value'] = array_merge($data[$name]['value'], $value);
+                        //    $data[$name]['value'] = array_merge($data[$name]['value'], $value);
                         //} else {
-                    //    $data[$name]['value'][] = $value;
+                        //    $data[$name]['value'][] = $value;
                         //}
                         if (empty($name_key)) {
                             $data[$name]['value'][] = $value;
