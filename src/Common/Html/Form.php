@@ -29,17 +29,21 @@ class Form
     /**
      * Object constructer.
      */
-    public function __construct()
+    public function __construct($enc_from = null)
     {
         foreach ($_GET as $key => $value) {
-            $this->get[$key] = Text::convert(filter_input(INPUT_GET, $key));
+            $this->get[$key] = Text::convert(filter_input(INPUT_GET, $key), null, $enc_from);
         }
         foreach ($_POST as $key => $value) {
             if (is_array($value)) {
-                $this->post[$key] = Text::convert(filter_input(INPUT_POST, $key, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY));
+                $this->post[$key] = Text::convert(
+                    filter_input(INPUT_POST, $key, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY),
+                    null,
+                    $enc_from
+                );
                 continue;
             }
-            $this->post[$key] = Text::convert(filter_input(INPUT_POST, $key));
+            $this->post[$key] = Text::convert(filter_input(INPUT_POST, $key), null, $enc_from);
         }
     }
 
@@ -398,12 +402,12 @@ class Form
                         break;
                     default:
                         //if (!is_array($data[$name]['value'])) {
-                    //    $data[$name]['value'] = [$data[$name]['value']];
+                        //    $data[$name]['value'] = [$data[$name]['value']];
                         //}
                         //if (is_array($value)) {
-                    //    $data[$name]['value'] = array_merge($data[$name]['value'], $value);
+                        //    $data[$name]['value'] = array_merge($data[$name]['value'], $value);
                         //} else {
-                    //    $data[$name]['value'][] = $value;
+                        //    $data[$name]['value'][] = $value;
                         //}
                         if (empty($name_key)) {
                             $data[$name]['value'][] = $value;
