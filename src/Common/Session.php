@@ -11,6 +11,7 @@
 namespace Gsnowhawk\Common;
 
 use Gsnowhawk\Common\Session\DbHandler;
+use Gsnowhawk\Common\Session\ApcuHandler;
 
 /**
  * Session Class.
@@ -106,6 +107,8 @@ class Session
     private $db_user;
     private $db_password;
     private $db_encoding;
+
+    private $apcu = false;
 
     public $name;
 
@@ -203,6 +206,7 @@ class Session
      */
     public function useDatabase($driver, $host, $source, $user, $password, $port = 3306, $encoding = '')
     {
+        $this->apcu = false;
         $this->usedb = true;
         $this->db_user = $user;
         $this->db_password = $password;
@@ -211,6 +215,15 @@ class Session
         $host = urlencode($host);
 
         session_save_path("$driver/$host/$source/$port");
+    }
+
+    /**
+     * Use apcu storage.
+     */
+    public function useApcu()
+    {
+        $this->usedb = false;
+        $this->apcu = true;
     }
 
     /**
@@ -246,6 +259,8 @@ class Session
                 $this->db_encoding
             );
             session_set_save_handler($handler, false);
+        } elseif ($this->apcu === true) {
+            session_set_save_handler(new ApcuHandler(), true);
         }
 
         if (false === ($this->status = @session_start())) {
