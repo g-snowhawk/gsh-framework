@@ -41,7 +41,7 @@ class ApcuHandler implements SessionHandlerInterface
 
     public function destroy($id): bool
     {
-        if(apcu_exists($id)){
+        if (apcu_exists($id)) {
             return apcu_delete($id);
         }
 
@@ -53,16 +53,16 @@ class ApcuHandler implements SessionHandlerInterface
         return true;
     }
 
-    #[\ReturnTypeWillChange]
     public function gc($maxlifetime): bool
     {
         $list = apcu_cache_info();
         $ttl = (int)ini_get('apc.gc_ttl');
-        foreach($list['cache_list'] as $v){
-            if( ($v['access_time'] + $ttl) < $_SERVER['REQUEST_TIME']){
+        foreach ($list['cache_list'] as $v) {
+            if (($v['access_time'] + $ttl) < $_SERVER['REQUEST_TIME']) {
                 apcu_delete($v['info']);
             }
         }
+
         return true;
     }
 }
