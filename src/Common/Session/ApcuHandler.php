@@ -53,13 +53,18 @@ class ApcuHandler implements SessionHandlerInterface
         return true;
     }
 
+    #[\ReturnTypeWillChange]
     public function gc($maxlifetime): bool
     {
         $list = apcu_cache_info();
         $ttl = (int)ini_get('apc.gc_ttl');
+        $count = 0;
         foreach ($list['cache_list'] as $v) {
             if (($v['access_time'] + $ttl) < $_SERVER['REQUEST_TIME']) {
-                apcu_delete($v['info']);
+                if (false === apcu_delete($v['info'])) {
+                    return false;
+                }
+                ++$count;
             }
         }
 
