@@ -1803,6 +1803,10 @@ class Db
         $clone = self::getHandler();
         $db = self::getHandler();
 
+        if (($options['foreign-key-checks'] ?? 0) !== 1) {
+            fputs($fp, 'SET FOREIGN_KEY_CHECKS = 0;' . self::SQL_EOL);
+        }
+
         $statement = $db->query('SHOW TABLES');
         while ($unit = $statement->fetch()) {
             $table = array_shift($unit);
@@ -1892,6 +1896,10 @@ class Db
                     fputs($fp, '-- Empty set;' . self::SQL_EOL);
                 }
             }
+        }
+
+        if (($options['foreign-key-checks'] ?? 0) !== 1) {
+            fputs($fp, 'SET FOREIGN_KEY_CHECKS = 1;' . self::SQL_EOL);
         }
 
         $content_length = ftell($fp);
