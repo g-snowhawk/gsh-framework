@@ -1922,4 +1922,17 @@ class Db
 
         exit;
     }
+
+    public function getEncoding(): ?string
+    {
+        $enc = null;
+        if (!empty($this->encoding)) {
+            $enc = $this->encoding;
+        } elseif ($this->query("SHOW VARIABLES LIKE 'character_set_client'")) {
+            $fetch = $this->fetch();
+            $enc = $fetch['value'] ?? null;
+        }
+
+        return $enc;
+    }
 }
