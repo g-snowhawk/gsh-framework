@@ -186,7 +186,10 @@ class Lang
                         $dict = json_decode(file_get_contents($file), true);
                     }
                     if (is_array($dict)) {
-                        self::$dictionary[$locale] = array_merge(self::$dictionary[$locale], $flatten($dict));
+                        if (defined('DICTIONARY_IS_FLATTEN') && DICTIONARY_IS_FLATTEN === 1) {
+                            $dict = $flatten($dict);
+                        }
+                        self::$dictionary[$locale] = array_merge(self::$dictionary[$locale], $dict);
                     }
                 }
             }
