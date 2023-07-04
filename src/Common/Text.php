@@ -164,8 +164,15 @@ class Text
     {
         $asset = func_get_args();
         $sep = array_shift($asset);
+        $str = array_shift($asset);
 
-        return preg_split("/[\s]*".preg_quote($sep, '/')."[\s]*/", $asset[0]);
+        $rep = ($sep === '.') ? ',' : '.';
+
+        $str = str_replace('\\'.$sep, '\\'.$rep, $str);
+
+        return array_map(function ($value) use ($sep, $rep) {
+            return str_replace('\\'.$rep, $sep, trim($value));
+        }, explode($sep, $str));
     }
 
     /**
