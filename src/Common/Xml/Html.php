@@ -1180,7 +1180,8 @@ namespace Gsnowhawk\Common\Xml {
          * @param mixed $force
          * @param mixed $skip
          */
-        public static function setDefaultValue(Form $request, $html, $id = null, $force = null, $skip = null) {
+        public static function setDefaultValue(Form $request, $html, $id = null, $force = null, $skip = null)
+        {
             if (is_null($skip)) {
                 $skip = [];
             }
