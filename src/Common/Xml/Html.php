@@ -285,6 +285,12 @@ namespace Gsnowhawk\Common\Xml {
 
         public function querySelectorAll($query, $parent = null)
         {
+            $xpath = new DOMXPath($this->dom);
+
+            if (empty($parent)) {
+                $parent = $this->dom->documentElement;
+            }
+
             if (preg_match('/^(.*)#([a-zA-Z][a-zA-Z0-9\-_:\.]*)/', $query, $match)) {
                 $tag = (empty($match[1])) ? '*' : $match[1];
                 $selector = $match[2];
@@ -293,12 +299,18 @@ namespace Gsnowhawk\Common\Xml {
                 $tag = (empty($match[1])) ? '*' : $match[1];
                 $selector = $match[2];
                 $query = sprintf('.//%s[contains(@class,"%s")]', $tag, $selector);
-            }
 
-            $xpath = new DOMXPath($this->dom);
+                $tmp = $xpath->query($query, $parent);
+                $nodes = [];
+                foreach ($tmp as $node) {
+                    $attribute = $node->getAttribute('class');
+                    $classes = explode(' ', $attribute);
+                    if (in_array($selector, $classes)) {
+                        $nodes[] = $node;
+                    }
+                }
 
-            if (empty($parent)) {
-                $parent = $this->dom->documentElement;
+                return new NodeList($nodes);
             }
 
             return $xpath->query($query, $parent);
@@ -337,18 +349,7 @@ namespace Gsnowhawk\Common\Xml {
          */
         public function getElementsByClassName($class, $parent = null)
         {
-            $query = sprintf('.//*[contains(@class,"%s")]', $class);
-            $tmp = $this->querySelectorAll($query, $parent);
-            $nodes = [];
-            foreach ($tmp as $node) {
-                $attribute = $node->getAttribute('class');
-                $classes = explode(' ', $attribute);
-                if (in_array($class, $classes)) {
-                    $nodes[] = $node;
-                }
-            }
-
-            return new NodeList($nodes);
+            return $this->querySelectorAll(".{$class}", $parent);
         }
 
         /**
