@@ -20,12 +20,10 @@ class NodeList implements \Iterator
 {
     private $index = 0;
     private $items = [];
-    private $nofilter = false;
 
     public function __construct(array $items, $nofilter = false)
     {
-        $this->items = $items;
-        $this->nofilter = $nofilter;
+        $this->items = ($nofilter) ? $items : array_values(array_filter($items, [$this, 'itemFilter']));
         $this->rewind();
     }
 
@@ -33,21 +31,17 @@ class NodeList implements \Iterator
     {
         switch ($key) {
             case 'length':
-                if ($this->nofilter === false) {
-                    $this->items = array_values(array_filter($this->items, [$this, 'itemFilter']));
-                }
-
                 return count($this->items);
-                break;
         }
+    }
+
+    public function count(): int
+    {
+        return count($this->items);
     }
 
     public function item($index)
     {
-        if ($this->nofilter === false) {
-            $this->items = array_values(array_filter($this->items, [$this, 'itemFilter']));
-        }
-
         return $this->items[$index] ?? null;
     }
 
@@ -66,9 +60,6 @@ class NodeList implements \Iterator
     }
     public function next(): void
     {
-        if ($this->nofilter === false) {
-            $this->items = array_values(array_filter($this->items, [$this, 'itemFilter']));
-        }
         ++$this->index;
     }
     public function rewind(): void
