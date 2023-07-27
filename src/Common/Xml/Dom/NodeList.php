@@ -10,19 +10,23 @@
 
 namespace Gsnowhawk\Common\Xml\Dom;
 
+use Iterator;
+
 /**
  * XML DOM custom  Nodelist.
  *
  * @license  https://www.plus-5.com/licenses/mit-license  MIT License
  * @author   Taka Goto <http://www.plus-5.com/>
  */
-class NodeList implements \Iterator
+class NodeList implements Iterator
 {
     private $index = 0;
     private $items = [];
+    private $nofilter = false;
 
     public function __construct(array $items, $nofilter = false)
     {
+        $this->nofilter = $nofilter;
         $this->items = ($nofilter) ? $items : array_values(array_filter($items, [$this, 'itemFilter']));
         $this->rewind();
     }
@@ -31,23 +35,30 @@ class NodeList implements \Iterator
     {
         switch ($key) {
             case 'length':
+                if ($this->nofilter === false) {
+                    $this->items = array_values(array_filter($this->items, [$this, 'itemFilter']));
+                }
+
                 return count($this->items);
         }
     }
 
     public function count(): int
     {
+        if ($this->nofilter === false) {
+            $this->items = array_values(array_filter($this->items, [$this, 'itemFilter']));
+        }
+
         return count($this->items);
     }
 
     public function item($index)
     {
-        return $this->items[$index] ?? null;
-    }
+        if ($this->nofilter === false) {
+            $this->items = array_values(array_filter($this->items, [$this, 'itemFilter']));
+        }
 
-    private function itemFilter($value)
-    {
-        return !is_null($value->parentNode);
+        return $this->items[$index] ?? null;
     }
 
     public function current(): ?object
@@ -60,6 +71,10 @@ class NodeList implements \Iterator
     }
     public function next(): void
     {
+        if ($this->nofilter === false) {
+            $this->items = array_values(array_filter($this->items, [$this, 'itemFilter']));
+        }
+
         ++$this->index;
     }
     public function rewind(): void
@@ -69,5 +84,10 @@ class NodeList implements \Iterator
     public function valid(): bool
     {
         return isset($this->items[$this->index]);
+    }
+
+    private function itemFilter($value)
+    {
+        return !is_null($value->parentNode);
     }
 }
