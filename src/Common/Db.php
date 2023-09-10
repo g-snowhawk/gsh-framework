@@ -1794,10 +1794,18 @@ class Db
         return $success;
     }
 
-    public function dump($tables, $options = null)
+    public function dump($tables, $options = null, $tofile = null)
     {
         if (false === $fp = fopen('php://memory', 'r+')) {
             return false;
+        }
+
+        $max_allowed_packet = self::MAX_ALLOWED_PACKET;
+        if (false !== $this->query("SHOW VARIABLES LIKE 'max_allowed_packet'")) {
+            $unit = $this->fetch();
+            if (!empty($unit['Value'] ?? null)) {
+                $max_allowed_packet = $unit['Value'];
+            }
         }
 
         $clone = self::getHandler();
@@ -1866,7 +1874,7 @@ class Db
 
                     $str = '(' . implode(',', $data) . ')';
                     $length = strlen($str) + 1;
-                    if (($strlen + $length) < self::MAX_ALLOWED_PACKET) {
+                    if (($strlen + $length) < $max_allowed_packet) {
                         $values[] = $str;
                         $strlen += $length;
                     } else {
@@ -1911,6 +1919,10 @@ class Db
         $filename = $source . '.sql';
         $mime = 'text/plain';
         $charset = 'utf-8';
+
+        if (!empty($tofile)) {
+            return @file_put_contents($tofile, stream_get_contents($fp));
+        }
 
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         header('Pragma: no-cache');
