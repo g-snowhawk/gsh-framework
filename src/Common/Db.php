@@ -1853,7 +1853,11 @@ class Db
                     return false;
                 }
 
-                $insert_sql = "INSERT INTO `{$table}` VALUES ";
+                $insert = 'INSERT';
+                if ($options['insert-ignore'] === 1) {
+                    $insert .= ' IGNORE';
+                }
+                $insert_sql = "{$insert} INTO `{$table}` VALUES ";
                 $inserts = [];
                 $values = [];
                 $strlen = strlen($insert_sql);
