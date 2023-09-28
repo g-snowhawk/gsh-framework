@@ -1796,7 +1796,11 @@ class Db
 
     public function dump($tables, $options = null, $tofile = null)
     {
-        if (false === $fp = fopen('php://memory', 'r+')) {
+        if (!is_null($tofile) && !file_exists($tofile) && false === @touch($tofile)) {
+            return false;
+        }
+        $mem = $tofile ?? 'php://memory';
+        if (false === $fp = fopen($mem, 'r+')) {
             return false;
         }
 
@@ -1854,7 +1858,7 @@ class Db
                 }
 
                 $insert = 'INSERT';
-                if ($options['insert-ignore'] === 1) {
+                if (($options['insert-ignore'] ?? null) === 1) {
                     $insert .= ' IGNORE';
                 }
                 $insert_sql = "{$insert} INTO `{$table}` VALUES ";
@@ -1914,6 +1918,10 @@ class Db
             fputs($fp, 'SET FOREIGN_KEY_CHECKS = 1;' . self::SQL_EOL);
         }
 
+        if (!empty($tofile)) {
+            return fclose($fp);
+        }
+
         $content_length = ftell($fp);
         rewind($fp);
 
@@ -1923,10 +1931,6 @@ class Db
         $filename = $source . '.sql';
         $mime = 'text/plain';
         $charset = 'utf-8';
-
-        if (!empty($tofile)) {
-            return @file_put_contents($tofile, stream_get_contents($fp));
-        }
 
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         header('Pragma: no-cache');
