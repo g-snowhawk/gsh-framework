@@ -235,7 +235,6 @@ class Format
         if (!is_null($splitter)) {
             $this->_splitter = $splitter;
         }
-        $this->_emptyTags = parent::$emptyTags;
 
         $this->_orgSource = $source;
         $this->_pi = $pi;
@@ -713,22 +712,6 @@ class Format
         $this->_rewindEntityReference();
 
         return $this->_formatted;
-    }
-
-    /**
-     * escape HTML entities.
-     */
-    private function _escapeEntityReference()
-    {
-        $this->_orgSource = parent::escapeEntityReference($this->_orgSource);
-    }
-
-    /**
-     * rewind escaped HTML entities.
-     */
-    private function _rewindEntityReference()
-    {
-        $this->_formatted = parent::rewindEntityReference($this->_formatted);
     }
 
     /**
