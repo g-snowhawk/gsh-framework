@@ -193,6 +193,14 @@ class Mail
         $this->encoding = $encoding;
 
         $this->from = self::noreplyAt();
+
+        if (defined('GSH_MAIL_EXTRA_HEADERS') && is_array(GSH_MAIL_EXTRA_HEADERS)) {
+            foreach (GSH_MAIL_EXTRA_HEADERS as $key => $value) {
+                if (!isset($this->head[$key])) {
+                    $this->setHeader($key, $value);
+                }
+            }
+        }
     }
 
     /**
@@ -465,6 +473,13 @@ class Mail
         if (!empty($this->bcc_addr)) {
             $header .= 'Bcc: '.implode(',', $this->bcc_addr).$dlm;
         }
+
+        if (defined('GSH_MAIL_EXTRA_HEADERS_DEV') && is_array(GSH_MAIL_EXTRA_HEADERS_DEV)) {
+            foreach (GSH_MAIL_EXTRA_HEADERS_DEV as $key => $value) {
+                $this->setHeader($key, $value);
+            }
+        }
+
         foreach ($this->head as $key => $value) {
             $header .= "$key: $value".$dlm;
         }
