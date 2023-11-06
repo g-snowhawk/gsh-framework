@@ -288,6 +288,11 @@ class Session
         return @session_destroy();
     }
 
+    public function params()
+    {
+        return $_SESSION ?? null;
+    }
+
     /**
      * Return session params.
      *
@@ -302,7 +307,7 @@ class Session
             $_SESSION[$name] = $value;
         }
 
-        return (isset($_SESSION[$name])) ? $_SESSION[$name] : null;
+        return $_SESSION[$name] ?? null;
     }
 
     /**

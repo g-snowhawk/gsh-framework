@@ -119,7 +119,7 @@ class Http
     public static function getURI()
     {
         $protocol = 'http';
-        if (Environment::server('https') === 'on') {
+        if (Environment::server('https') === 'on' || Environment::server('http_x_forwarded_proto') === 'https') {
             $protocol .= 's';
         }
         $host = Environment::server('http_host');
