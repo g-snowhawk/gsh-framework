@@ -147,4 +147,44 @@ class Environment
 
         return [$name, $version];
     }
+
+    public static function getMemoryLimit(): ?int
+    {
+        $limit_string = ini_get('memory_limit');
+        $unit = strtolower(mb_substr($limit_string, -1));
+        $bytes = intval(mb_substr($limit_string, 0, -1), 10);
+
+        switch ($unit) {
+            case 'k':
+                $bytes *= 1024;
+                break;
+
+            case 'm':
+                $bytes *= (1024 ** 2);
+                break;
+
+            case 'g':
+                $bytes *= (1024 ** 3);
+                break;
+
+            default:
+                break;
+        }
+
+        if ("$limit_string" === '-1') {
+            $bytes = null;
+            if (is_readable('/proc/meminfo')) {
+                $fh = fopen('/proc/meminfo', 'r');
+                while ($line = fgets($fh)) {
+                    if (preg_match('/^MemAvailable:\s+(\d+)\skB$/', $line, $match)) {
+                        $bytes = (int)$match[1];
+                        break;
+                    }
+                }
+                fclose($fh);
+            }
+        }
+
+        return $bytes;
+    }
 }

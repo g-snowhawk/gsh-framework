@@ -12,7 +12,6 @@ namespace Gsnowhawk\Common;
 
 use PDO;
 use PDOException;
-use Gsnowhawk\Common\Variable;
 
 /**
  * Database connection class.
@@ -1794,7 +1793,7 @@ class Db
         return $success;
     }
 
-    public function dump($tables, $options = null, $tofile = null)
+    public function dump($tables, $options = null, $tofile = null, float $threshold = 0.25)
     {
         if (!is_null($tofile) && !file_exists($tofile) && false === @touch($tofile)) {
             return false;
@@ -1812,11 +1811,14 @@ class Db
             }
         }
 
+        $ml = Environment::getMemoryLimit();
+        $max_allowed_memory = ($ml / $max_allowed_packet >= 2) ? round($ml * $threshold) : null;
+
         $clone = self::getHandler();
         $db = self::getHandler();
 
         if (($options['foreign-key-checks'] ?? 0) !== 1) {
-            fputs($fp, 'SET FOREIGN_KEY_CHECKS = 0;' . self::SQL_EOL);
+            fwrite($fp, 'SET FOREIGN_KEY_CHECKS = 0;' . self::SQL_EOL);
         }
 
         $statement = $db->query('SHOW TABLES');
@@ -1827,12 +1829,12 @@ class Db
             }
 
             if ($options['no-create-info'] !== 1) {
-                fputs($fp, self::SQL_EOL);
-                fputs($fp, '--' . self::SQL_EOL);
-                fputs($fp, "-- Table structure for table `{$table}`" . self::SQL_EOL);
-                fputs($fp, '--' . self::SQL_EOL);
-                fputs($fp, self::SQL_EOL);
-                fputs($fp, "DROP TABLE IF EXISTS `{$table}`;" . self::SQL_EOL);
+                fwrite($fp, self::SQL_EOL);
+                fwrite($fp, '--' . self::SQL_EOL);
+                fwrite($fp, "-- Table structure for table `{$table}`" . self::SQL_EOL);
+                fwrite($fp, '--' . self::SQL_EOL);
+                fwrite($fp, self::SQL_EOL);
+                fwrite($fp, "DROP TABLE IF EXISTS `{$table}`;" . self::SQL_EOL);
 
                 if (false === ($stat = $clone->query("SHOW CREATE TABLE `{$table}`"))) {
                     return false;
@@ -1840,7 +1842,7 @@ class Db
                 while ($fetch = $stat->fetch()) {
                     $create = array_pop($fetch);
                     $create = preg_replace('/([^\r])\n/', '$1' . self::SQL_EOL, $create);
-                    fputs($fp, $create . ';' . self::SQL_EOL);
+                    fwrite($fp, $create . ';' . self::SQL_EOL);
                 }
             }
 
@@ -1853,69 +1855,91 @@ class Db
                     $columns[] = $unit['Type'];
                 }
 
+                if (false === ($stat = $clone->query("SELECT COUNT(*) AS cnt FROM `{$table}`"))) {
+                    return false;
+                }
+                $records = $stat->fetchColumn();
+
                 if (false === ($stat = $clone->query("SELECT * FROM `{$table}`"))) {
                     return false;
                 }
 
-                $insert = 'INSERT';
-                if (($options['insert-ignore'] ?? null) === 1) {
-                    $insert .= ' IGNORE';
-                }
-                $insert_sql = "{$insert} INTO `{$table}` VALUES ";
-                $inserts = [];
-                $values = [];
-                $strlen = strlen($insert_sql);
-                while ($unit = $stat->fetch(PDO::FETCH_NUM)) {
-                    $data = [];
-                    foreach ($unit as $n => $value) {
-                        $quote = '';
-                        if (is_null($value)) {
-                            $value = 'NULL';
-                        } else {
-                            $value = str_replace(['\\', '"', "'", "\r", "\n"], ['\\\\', '\\"', "\\'", '\\r', '\\n'], $value);
-                            if (!preg_match('/^(tinyint|smallint|mediumint|int|bigint|float|double|decimal|numeric)/i', $columns[$n])) {
-                                $quote = "'";
+                fwrite($fp, self::SQL_EOL);
+                fwrite($fp, '--' . self::SQL_EOL);
+                fwrite($fp, "-- Dumping data for table `{$table}`" . self::SQL_EOL);
+                fwrite($fp, '--' . self::SQL_EOL);
+                fwrite($fp, self::SQL_EOL);
+
+                if ($records > 0) {
+                    fwrite($fp, "LOCK TABLES `{$table}` WRITE;" . self::SQL_EOL);
+
+                    $insert = 'INSERT';
+                    if (($options['insert-ignore'] ?? null) === 1) {
+                        $insert .= ' IGNORE';
+                    }
+                    $insert_sql = "{$insert} INTO `{$table}` VALUES ";
+                    $strlen = strlen($insert_sql);
+
+                    $values = '';
+                    $comma = '';
+                    while ($unit = $stat->fetch(PDO::FETCH_NUM)) {
+                        $str = $comma.'(';
+                        $separator = '';
+                        foreach ($unit as $n => $value) {
+                            $quote = '';
+                            if (is_null($value)) {
+                                $value = 'NULL';
+                            } else {
+                                $value = str_replace(['\\', '"', "'", "\r", "\n"], ['\\\\', '\\"', "\\'", '\\r', '\\n'], $value);
+                                if (!preg_match('/^(tinyint|smallint|mediumint|int|bigint|float|double|decimal|numeric)/i', $columns[$n])) {
+                                    $quote = "'";
+                                }
                             }
+
+                            $str .= "{$separator}{$quote}{$value}{$quote}";
+                            $separator = ',';
                         }
-                        $data[] = "{$quote}{$value}{$quote}";
+
+                        $str .= ')';
+                        $length = strlen($str);
+
+                        $comma = ',';
+                        if (($strlen + $length) >= $max_allowed_packet) {
+                            if (!empty($values)) {
+                                fwrite($fp, ((!isset($fputs_started)) ? $insert_sql : '') . $values . ';' . self::SQL_EOL);
+                                unset($fputs_started);
+                                $str = preg_replace('/^,\(/', '(', $str);
+                            }
+                            $values = $str;
+                            $strlen = strlen($insert_sql) + $length;
+                        } elseif (($strlen + $length) >= $max_allowed_memory) {
+                            if (!empty($values)) {
+                                fwrite($fp, ((!isset($fputs_started)) ? $insert_sql : '') . $values);
+                                $fputs_started = true;
+                            }
+                            $values = $str;
+                        } else {
+                            $values .= $str;
+                            $strlen += $length;
+                        }
+                    }
+                    if (!empty($values)) {
+                        fwrite($fp, ((!isset($fputs_started)) ? $insert_sql : '') . $values . ';' . self::SQL_EOL);
+                    } elseif (isset($fputs_started)) {
+                        fwrite($fp, ';' . self::SQL_EOL);
                     }
 
-                    $str = '(' . implode(',', $data) . ')';
-                    $length = strlen($str) + 1;
-                    if (($strlen + $length) < $max_allowed_packet) {
-                        $values[] = $str;
-                        $strlen += $length;
-                    } else {
-                        if (count($values) > 0) {
-                            $inserts[] = $insert_sql . implode(',', $values) . ';';
-                        }
-                        $values = [$str];
-                        $strlen = strlen($insert_sql) + $length;
-                    }
-                }
-                if (count($values) > 0) {
-                    $inserts[] = $insert_sql . implode(',', $values) . ';';
-                }
-
-                fputs($fp, self::SQL_EOL);
-                fputs($fp, '--' . self::SQL_EOL);
-                fputs($fp, "-- Dumping data for table `{$table}`" . self::SQL_EOL);
-                fputs($fp, '--' . self::SQL_EOL);
-                fputs($fp, self::SQL_EOL);
-                if (count($inserts) > 0) {
-                    fputs($fp, "LOCK TABLES `{$table}` WRITE;" . self::SQL_EOL);
-                    foreach ($inserts as $insert) {
-                        fputs($fp, $insert . self::SQL_EOL);
-                    }
-                    fputs($fp, 'UNLOCK TABLES;' . self::SQL_EOL);
+                    fwrite($fp, 'UNLOCK TABLES;' . self::SQL_EOL);
+                    unset($fputs_started);
                 } else {
-                    fputs($fp, '-- Empty set;' . self::SQL_EOL);
+                    fwrite($fp, '-- Empty set;' . self::SQL_EOL);
                 }
             }
         }
 
         if (($options['foreign-key-checks'] ?? 0) !== 1) {
-            fputs($fp, 'SET FOREIGN_KEY_CHECKS = 1;' . self::SQL_EOL);
+            fwrite($fp, self::SQL_EOL);
+            fwrite($fp, 'SET FOREIGN_KEY_CHECKS = 1;' . self::SQL_EOL);
         }
 
         if (!empty($tofile)) {
