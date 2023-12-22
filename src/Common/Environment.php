@@ -154,22 +154,21 @@ class Environment
         $unit = strtolower(mb_substr($limit_string, -1));
         $bytes = intval(mb_substr($limit_string, 0, -1), 10);
 
-        switch ($unit)
-        {
-          case 'k':
-             $bytes *= 1024;
-             break;
+        switch ($unit) {
+            case 'k':
+                $bytes *= 1024;
+                break;
 
-          case 'm':
-             $bytes *= (1024 ** 2);
-             break;
+            case 'm':
+                $bytes *= (1024 ** 2);
+                break;
 
-          case 'g':
-             $bytes *= (1024 ** 3);
-             break;
+            case 'g':
+                $bytes *= (1024 ** 3);
+                break;
 
-          default:
-             break;
+            default:
+                break;
         }
 
         if ("$limit_string" === '-1') {

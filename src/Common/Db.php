@@ -12,8 +12,6 @@ namespace Gsnowhawk\Common;
 
 use PDO;
 use PDOException;
-//use Gsnowhawk\Common\Environment;
-//use Gsnowhawk\Common\Variable;
 
 /**
  * Database connection class.
