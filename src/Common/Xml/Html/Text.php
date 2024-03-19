@@ -45,7 +45,7 @@ class Text
                 return;
             }
         }
-        $element->setAttribute('value', $value);
+        $element->setAttribute('value', $value ?? '');
     }
 
     /**

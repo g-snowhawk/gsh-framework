@@ -470,10 +470,10 @@ class Db
      *
      * @return mixed
      */
-    public function insert($table, array $data, $raws = null, $fields = null)
+    public function insert($table, array $data, $raws = null, $fields = null, bool $ignore = false)
     {
         if (is_null($fields)) {
-            $fields = $this->getFields($table, true);
+            $fields = self::getFields($table, true);
         }
         $data = (Variable::isHash($data)) ? [$data] : $data;
         $raws = (Variable::isHash($raws)) ? [$raws] : $raws;
@@ -506,7 +506,9 @@ class Db
         }
         $sql = '('.implode(',', $keys).') VALUES '.implode(',', $rows);
 
-        return $this->exec("INSERT INTO \"$table\" $sql");
+        $ignore = (false !== $ignore) ? 'IGNORE ' : '';
+
+        return $this->exec("INSERT {$ignore}INTO \"{$table}\" {$sql}");
     }
 
     /**
@@ -524,7 +526,7 @@ class Db
     public function update($table, $data, $statement = '', $options = [], $raws = null, $fields = null)
     {
         if (is_null($fields)) {
-            $fields = $this->getFields($table, true);
+            $fields = self::getFields($table, true);
         }
         $pair = [];
         foreach ($data as $key => $value) {
@@ -627,7 +629,7 @@ class Db
     {
         $ecount = 0;
         if (is_null($fields)) {
-            $fields = $this->getFields($table, true);
+            $fields = self::getFields($table, true);
         }
         if (Variable::isHash($data)) {
             $data = [$data];
@@ -1585,7 +1587,7 @@ class Db
     public function resetAutoIncrement($table)
     {
         $column = null;
-        $fields = $this->getFields($table, true);
+        $fields = self::getFields($table, true);
         foreach ($fields as $field) {
             if ($field['Extra'] === 'auto_increment') {
                 $column = $field['Field'];
