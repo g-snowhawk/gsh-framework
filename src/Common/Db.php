@@ -1667,9 +1667,9 @@ class Db
                 } elseif (strpos($buffer, '-- ') === 0) {
                     $command_type = 'comment';
                     $sql = $buffer;
-                } elseif (strpos($buffer, '/*!') === 0) {
-                    $command_type = 'mysql versioning';
-                    $sql = $buffer;
+                //} elseif (strpos($buffer, '/*!') === 0) {
+                //    $command_type = 'mysql versioning';
+                //    $sql = $buffer;
                 } else {
                     $command_type = 'sql';
                     $quote = 'even';
