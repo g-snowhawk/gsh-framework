@@ -1667,9 +1667,6 @@ class Db
                 } elseif (strpos($buffer, '-- ') === 0) {
                     $command_type = 'comment';
                     $sql = $buffer;
-                } elseif (strpos($buffer, '/*!') === 0) {
-                    $command_type = 'mysql versioning';
-                    $sql = $buffer;
                 } else {
                     $command_type = 'sql';
                     $quote = 'even';
@@ -1813,15 +1810,37 @@ class Db
             }
         }
 
+        $charset = null;
+        if (false !== $this->query('SHOW CREATE DATABASE `'.$this->source.'`')) {
+            $unit = $this->fetch();
+            if (preg_match('/DEFAULT\s+CHARACTER\s+SET\s+([^\s]+)/i', $unit['Create Database'], $match)) {
+                $charset = $match[1];
+            }
+        }
+        if (is_null($charset) && false !== $this->query("SHOW VARIABLES LIKE 'character_set_database'")) {
+            $unit = $this->fetch();
+            if (!empty($unit['Value'] ?? null)) {
+                $charset = $unit['Value'];
+            }
+        }
+
         $ml = Environment::getMemoryLimit();
         $max_allowed_memory = ($ml / $max_allowed_packet >= 2) ? round($ml * $threshold) : null;
 
         $clone = self::getHandler();
         $db = self::getHandler();
 
-        if (($options['foreign-key-checks'] ?? 0) !== 1) {
-            fwrite($fp, 'SET FOREIGN_KEY_CHECKS = 0;' . self::SQL_EOL);
-        }
+        fwrite($fp, '/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;' . self::SQL_EOL);
+        fwrite($fp, "/*!50503 SET NAMES {$charset} */;" . self::SQL_EOL);
+        fwrite($fp, '/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;' . self::SQL_EOL);
+        fwrite($fp, "/*!40103 SET TIME_ZONE='+00:00' */;" . self::SQL_EOL);
+        fwrite($fp, '/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;' . self::SQL_EOL);
+        fwrite($fp, "/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;" . self::SQL_EOL);
+        fwrite($fp, '/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;' . self::SQL_EOL);
 
         $statement = $db->query('SHOW TABLES');
         while ($unit = $statement->fetch()) {
@@ -1837,6 +1856,8 @@ class Db
                 fwrite($fp, '--' . self::SQL_EOL);
                 fwrite($fp, self::SQL_EOL);
                 fwrite($fp, "DROP TABLE IF EXISTS `{$table}`;" . self::SQL_EOL);
+                fwrite($fp, '/*!40101 SET @saved_cs_client     = @@character_set_client */;' . self::SQL_EOL);
+                fwrite($fp, "/*!50503 SET character_set_client = {$charset} */;" . self::SQL_EOL);
 
                 if (false === ($stat = $clone->query("SHOW CREATE TABLE `{$table}`"))) {
                     return false;
@@ -1846,6 +1867,8 @@ class Db
                     $create = preg_replace('/([^\r])\n/', '$1' . self::SQL_EOL, $create);
                     fwrite($fp, $create . ';' . self::SQL_EOL);
                 }
+
+                fwrite($fp, '/*!40101 SET character_set_client = @saved_cs_client */;' . self::SQL_EOL);
             }
 
             if ($options['no-data'] !== 1) {
@@ -1874,6 +1897,7 @@ class Db
 
                 if ($records > 0) {
                     fwrite($fp, "LOCK TABLES `{$table}` WRITE;" . self::SQL_EOL);
+                    fwrite($fp, "/*!40000 ALTER TABLE `{$table}` DISABLE KEYS */;" . self::SQL_EOL);
 
                     $insert = 'INSERT';
                     if (($options['insert-ignore'] ?? null) === 1) {
@@ -1931,6 +1955,7 @@ class Db
                         fwrite($fp, ';' . self::SQL_EOL);
                     }
 
+                    fwrite($fp, "/*!40000 ALTER TABLE `{$table}` ENABLE KEYS */;" . self::SQL_EOL);
                     fwrite($fp, 'UNLOCK TABLES;' . self::SQL_EOL);
                     unset($fputs_started);
                 } else {
@@ -1939,10 +1964,15 @@ class Db
             }
         }
 
-        if (($options['foreign-key-checks'] ?? 0) !== 1) {
-            fwrite($fp, self::SQL_EOL);
-            fwrite($fp, 'SET FOREIGN_KEY_CHECKS = 1;' . self::SQL_EOL);
-        }
+        fwrite($fp, self::SQL_EOL);
+        fwrite($fp, '/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;' . self::SQL_EOL);
+        fwrite($fp, '/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;' . self::SQL_EOL);
 
         if (!empty($tofile)) {
             return fclose($fp);
