@@ -1667,9 +1667,6 @@ class Db
                 } elseif (strpos($buffer, '-- ') === 0) {
                     $command_type = 'comment';
                     $sql = $buffer;
-                //} elseif (strpos($buffer, '/*!') === 0) {
-                //    $command_type = 'mysql versioning';
-                //    $sql = $buffer;
                 } else {
                     $command_type = 'sql';
                     $quote = 'even';
@@ -1814,7 +1811,7 @@ class Db
         }
 
         $charset = null;
-        if (false !== $this->query("SHOW CREATE DATABASE `".$this->source."`")) {
+        if (false !== $this->query('SHOW CREATE DATABASE `'.$this->source.'`')) {
             $unit = $this->fetch();
             if (preg_match('/DEFAULT\s+CHARACTER\s+SET\s+([^\s]+)/i', $unit['Create Database'], $match)) {
                 $charset = $match[1];
