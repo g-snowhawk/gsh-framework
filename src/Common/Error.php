@@ -370,7 +370,7 @@ class Error
         $feedbacks = array_values(array_filter($feedbacks, 'strlen'));
         if (count($feedbacks) > 0) {
             $message .= PHP_EOL;
-            $message .= PHP_EOL.'User: '.Environment::server('remote_addr');
+            $message .= PHP_EOL.'User: '.(Environment::server('http_x_forwarded_for') ?? Environment::server('remote_addr'));
             $message .= PHP_EOL.'Host: '.Environment::server('server_name');
             $message .= PHP_EOL.'Time: '.date('Y-m-d H:i:s');
             $user_agent = Environment::server('http_user_agent');
@@ -401,14 +401,9 @@ class Error
             if (self::isEmail(ERROR_LOG_DESTINATION)) {
                 error_log($message, 1, ERROR_LOG_DESTINATION);
             } elseif (!is_null($this->logdir)) {
-                $client = '['
-                    . filter_input(INPUT_SERVER, 'REMOTE_ADDR')
-                    . '] ';
-                error_log(
-                    date('[Y-m-d H:i:s] ') . $client . $message . PHP_EOL,
-                    3,
-                    ERROR_LOG_DESTINATION
-                );
+                $key = (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) ? 'HTTP_X_FORWARDED_FOR' : 'REMOTE_ADDR';
+                $client = '[' . filter_input(INPUT_SERVER, $key) . '] ';
+                error_log(date('[Y-m-d H:i:s] ') . $client . $message . PHP_EOL, 3, ERROR_LOG_DESTINATION);
             } else {
                 error_log($message, 0, ERROR_LOG_DESTINATION);
             }
