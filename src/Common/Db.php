@@ -172,8 +172,11 @@ class Db
                     $this->options[PDO::MYSQL_ATTR_SSL_KEY] = MYSQL_SSL_KEY;
                 }
                 if (defined('MYSQL_SSL_VERIFY_SERVER_CERT')) {
-                    $this->options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT]
-                        = MYSQL_SSL_VERIFY_SERVER_CERT;
+                    $this->options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = MYSQL_SSL_VERIFY_SERVER_CERT;
+                }
+
+                if (defined('MYSQL_TIMEZONE')) {
+                    $this->options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET SESSION time_zone='".MYSQL_TIMEZONE."'";
                 }
 
                 if (strpos($host, 'unix_socket:') === 0) {
