@@ -210,6 +210,9 @@ class File
      */
     public static function rmdir($dir, $recursive = false)
     {
+        if (!file_exists($dir)) {
+            return true;
+        }
         if ($recursive === true) {
             $dh = opendir($dir);
             while ($file = readdir($dh)) {
