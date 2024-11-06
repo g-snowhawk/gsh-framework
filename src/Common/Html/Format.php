@@ -502,8 +502,7 @@ class Format extends Tags
          * A head element is start tag may be omitted
          * if the element is empty, or
          * if the first thing inside the head element is an element.
-         */
-        elseif ($tag === 'head') {
+         */ elseif ($tag === 'head') {
             if (preg_match('/^[\s]*<([^!\?].+|\/head)>/is', $this->source)) {
                 return true;
             }
@@ -516,8 +515,7 @@ class Format extends Tags
          * is not a space character or a comment, except
          * if the first thing inside the body element is a meta,
          * link, script, style, or template element.
-         */
-        elseif ($tag === 'body') {
+         */ elseif ($tag === 'body') {
             if (preg_match('/<\/body>[\s]*<!--.*?-->/is', $this->source)
                 || preg_match('/^[\s]*<(meta|link|script|style|template).*?'.'>/is', $this->source)
             ) {
@@ -538,8 +536,7 @@ class Format extends Tags
          * preceded by another colgroup element
          * whose end tag has been omitted.
          * (It can't be omitted if the element is empty.)
-         */
-        elseif ($tag === 'colgroup') {
+         */ elseif ($tag === 'colgroup') {
             if (preg_match('/^.+<(colgroup).*?'.'>(((?!<\/\1>).)*)$/is', $this->formatted)) {
                 return false;
             }
@@ -555,8 +552,7 @@ class Format extends Tags
          * preceded by a tbody, thead, or tfoot element
          * whose end tag has been omitted.
          * (It can't be omitted if the element is empty.)
-         */
-        elseif ($tag === 'tbody') {
+         */ elseif ($tag === 'tbody') {
             if (preg_match('/^.+<(tbody|thead|tfoot).*?'.'>(((?!<\/\1>).)+)$/is', $this->formatted)) {
                 return false;
             }
@@ -599,8 +595,7 @@ class Format extends Tags
          * A head element is end tag may be omitted
          * if the head element is not immediately
          * followed by a space character or a comment.
-         */
-        elseif ($tag === 'head') {
+         */ elseif ($tag === 'head') {
             return $this->followedWhitespaceOrComments();
         }
 
@@ -612,8 +607,7 @@ class Format extends Tags
          * nav, ol, p, pre, section, table, or ul, element, or
          * if there is no more content in the parent element and
          * the parent element is not an a element.
-         */
-        elseif ($tag === 'p') {
+         */ elseif ($tag === 'p') {
             if (preg_match('/^[\s]*<\/a>/is', $this->source)) {
                 return false;
             }
@@ -628,8 +622,7 @@ class Format extends Tags
          * An li element is end tag may be omitted
          * if the li element is immediately followed by another li element or
          * if there is no more content in the parent element.
-         */
-        elseif ($tag === 'li') {
+         */ elseif ($tag === 'li') {
             if (preg_match('/^[\s]*<\/?(ul|ol|li).*?'.'>/is', $this->source)) {
                 return true;
             }
@@ -643,8 +636,7 @@ class Format extends Tags
          * A dd element is end tag may be omitted
          * if the dd element is immediately followed by another dd element or
          * a dt element, or if there is no more content in the parent element.
-         */
-        elseif (in_array($tag, ['dt', 'dd'])) {
+         */ elseif (in_array($tag, ['dt', 'dd'])) {
             if (preg_match('/^[\s]*<\/?(dl|d[dt]).*?'.'>/is', $this->source)) {
                 return true;
             }
@@ -659,8 +651,7 @@ class Format extends Tags
          * if the tbody element is immediately
          * followed by a tbody or tfoot element, or
          * if there is no more content in the parent element.
-         */
-        elseif (in_array($tag, ['thead', 'tbody'])) {
+         */ elseif (in_array($tag, ['thead', 'tbody'])) {
             if (preg_match('/^[\s]*<(tfoot|tbody).*?'.'>/is', $this->source)) {
                 return true;
             }
@@ -675,8 +666,7 @@ class Format extends Tags
          * A tfoot element is end tag may be omitted
          * if the tfoot element is immediately followed by a tbody element,
          * or if there is no more content in the parent element.
-         */
-        elseif ($tag === 'tfoot') {
+         */ elseif ($tag === 'tfoot') {
             if (preg_match('/^[\s]*<\/table>/is', $this->source)) {
                 return true;
             }
@@ -686,8 +676,7 @@ class Format extends Tags
          * A colgroup element is end tag may be omitted
          * if the colgroup element is not immediately
          * followed by a space character or a comment.
-         */
-        elseif ($tag === 'colgroup') {
+         */ elseif ($tag === 'colgroup') {
             return $this->followedWhitespaceOrComments();
         }
 
@@ -695,8 +684,7 @@ class Format extends Tags
          * A tr element is end tag may be omitted
          * if the tr element is immediately followed by another tr element,
          * or if there is no more content in the parent element.
-         */
-        elseif ($tag === 'tr') {
+         */ elseif ($tag === 'tr') {
             if (preg_match('/^[\s]*<(tr|\/table|\/tbody|\/thead|\/tfoot).*?'.'>/is', $this->source)) {
                 return true;
             }
@@ -710,8 +698,7 @@ class Format extends Tags
          * A th element is end tag may be omitted
          * if the th element is immediately followed by a td or th element,
          * or if there is no more content in the parent element.
-         */
-        elseif (in_array($tag, ['th', 'td'])) {
+         */ elseif (in_array($tag, ['th', 'td'])) {
             if (preg_match('/^[\s]*<\/?(t[dhr]|table|tbody|thead|tfoot).*?'.'>/is', $this->source)) {
                 return true;
             }
@@ -721,8 +708,7 @@ class Format extends Tags
          * An optgroup element is end tag may be omitted
          * if the optgroup element is immediately followed by another optgroup element,
          * or if there is no more content in the parent element.
-         */
-        elseif ($tag === 'optgroup') {
+         */ elseif ($tag === 'optgroup') {
             if (preg_match('/^[\s]*<\/?(select|optgroup).*?'.'>/is', $this->source)) {
                 return true;
             }
@@ -734,8 +720,7 @@ class Format extends Tags
          * followed by another option element, or
          * if it is immediately followed by an optgroup element, or
          * if there is no more content in the parent element.
-         */
-        elseif ($tag === 'option') {
+         */ elseif ($tag === 'option') {
             if (preg_match('/^[\s]*<\/?(select|optgroup|option).*?'.'>/is', $this->source)) {
                 return true;
             }
@@ -756,8 +741,7 @@ class Format extends Tags
          * if the rp element is immediately
          * followed by an rb, rt, rtc or rp element, or
          * if there is no more content in the parent element.
-         */
-        elseif (in_array($tag, ['rb', 'rt', 'rtc', 'rp'])) {
+         */ elseif (in_array($tag, ['rb', 'rt', 'rtc', 'rp'])) {
             if (preg_match('/^[\s]*<(rb|rt|rtc|rp|\/ruby).*?'.'>/is', $this->source)) {
                 return true;
             }
@@ -768,8 +752,7 @@ class Format extends Tags
          * if the rtc element is immediately
          * followed by an rb, rtc or rp element, or
          * if there is no more content in the parent element.
-         */
-        elseif ($tag === 'rtc') {
+         */ elseif ($tag === 'rtc') {
             if (preg_match('/^[\s]*<(rb|rtc|rp|\/ruby).*?'.'>/is', $this->source)) {
                 return true;
             }
