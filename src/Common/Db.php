@@ -1467,6 +1467,18 @@ class Db
     }
 
     /**
+     * Get PDO Attribute.
+     *
+     * @param int   $attribute
+     *
+     * @return bool
+     */
+    public function getAttribute($attribute)
+    {
+        return $this->handler->getAttribute($attribute);
+    }
+
+    /**
      * Set PDO Attribute.
      *
      * @param int   $attribute
