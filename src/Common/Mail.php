@@ -10,6 +10,8 @@
 
 namespace Gsnowhawk\Common;
 
+use ErrorException;
+
 /**
  * Send Mail class.
  *
@@ -790,7 +792,19 @@ class Mail
             $server = "tls://{$server}";
         }
 
-        if (false === $this->socket = @fsockopen($server, $port, $errno, $errstr, 5)) {
+        try {
+            $this->socket = @fsockopen($server, $port, $errno, $errstr, 5);
+        } catch (ErrorException $e) {
+            if (preg_match('/connection timed out/is', $errstr)) {
+                $this->error = 'Connection timed out';
+
+                return false;
+            }
+
+            $this->socket = false;
+        }
+
+        if (false === $this->socket) {
             if (preg_match('/certificate verify failed/is', $errstr)) {
                 $context = stream_context_create([
                     'ssl' => [
