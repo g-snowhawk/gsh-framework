@@ -45,7 +45,7 @@ class Error
      *
      * @var int
      */
-    private $error_type = E_ALL|E_STRICT;
+    private $error_type = E_ALL;
 
     /**
      * logfile save path.
@@ -179,7 +179,6 @@ class Error
 
         if ($errno === E_USER_ERROR
          || $errno === E_USER_NOTICE
-         || $errno === E_STRICT
          || $errno === E_NOTICE
         ) {
             $message = "$errstr in $errfile on line $errline.";
@@ -240,7 +239,7 @@ class Error
      */
     public function displayError($message, $errno, $tracer = null)
     {
-        if (in_array($errno, [E_NOTICE, E_USER_NOTICE, E_STRICT])) {
+        if (in_array($errno, [E_NOTICE, E_USER_NOTICE])) {
             return;
         }
 
