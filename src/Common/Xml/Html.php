@@ -820,7 +820,8 @@ namespace Gsnowhawk\Common\Xml {
                 for ($i = 0, $max = $elements->length; $i < $max; ++$i) {
                     $element = $elements->item(0);
                     if ($tag === 'script') {
-                        if (true !== $element->hasAttribute('src') || $element->getAttribute('class') === 'stay') {
+                        if (true !== $element->hasAttribute('src') || $element->classListContains('stay')) {
+                            $element->classListRemove('stay');
                             continue;
                         }
                     }
@@ -829,9 +830,16 @@ namespace Gsnowhawk\Common\Xml {
                             $head->replaceChild($element, $exists->item(0));
                             continue;
                         }
-                        $last = $exists->item(($exists->length - 1))->nextSibling;
-                        if (is_object($last)) {
-                            $head->insertBefore($element, $last);
+
+                        $index = $exists->length - 1;
+                        if ($element->hasAttribute('data-index')) {
+                            $index = $element->getAttribute('data-index');
+                            $element->removeAttribute('data-index');
+                        }
+
+                        $ref = $exists->item($index)->nextSibling;
+                        if (is_object($ref)) {
+                            $head->insertBefore($element, $ref);
                             continue;
                         }
                         $head->appendChild($element);
