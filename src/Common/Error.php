@@ -158,7 +158,8 @@ class Error
      * @param int    $errline
      * @param array  $errcontext
      */
-    public function errorHandler($errno, $errstr, $errfile, $errline, $errcontext = null) {
+    public function errorHandler($errno, $errstr, $errfile, $errline, $errcontext = null)
+    {
         // Do nothing with the `@' operator
         if (error_reporting() === 0) {
             return;
