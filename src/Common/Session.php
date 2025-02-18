@@ -265,7 +265,7 @@ class Session
         }
 
         if (false === ($this->status = @session_start())) {
-            trigger_error('Session does not started', E_USER_ERROR);
+            trigger_error('Session does not started', E_USER_WARNING);
         }
 
         return $this->status;

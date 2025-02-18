@@ -52,7 +52,7 @@ class Security
      * @param string $source
      * @param Gsnowhawk\Common\Db  $db
      */
-    public function __construct($source, Db $db = null, $password_algo = 'sha1')
+    public function __construct($source, ?Db $db = null, $password_algo = 'sha1')
     {
         $this->source = $source;
         $this->db = $db;

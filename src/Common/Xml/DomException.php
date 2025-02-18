@@ -28,7 +28,7 @@ class DomException extends ErrorException
         $severity = E_ERROR,
         $filename = __FILE__,
         $lineno = __LINE__,
-        Exception $previous = null
+        ?Exception $previous = null
     ) {
         parent::__construct(
             $message,

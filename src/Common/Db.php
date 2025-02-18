@@ -365,11 +365,11 @@ class Db
      *
      * @return mixed
      */
-    public function exec($sql, array $options = null, $bind = null)
+    public function exec($sql, array $options = [], $bind = null)
     {
         $this->sql = $this->normalizeSQL($sql);
         try {
-            if (is_null($options)) {
+            if (empty($options)) {
                 $this->ecount = $this->handler->exec($this->sql);
             } else {
                 $this->prepare($this->sql);
@@ -1211,7 +1211,7 @@ class Db
      *
      * @return int
      */
-    public function recordCount($sql = '', array $options = null)
+    public function recordCount($sql = '', array $options = [])
     {
         if (empty($sql)) {
             $sql = $this->sql;
@@ -1219,11 +1219,11 @@ class Db
 
         try {
             $sql = 'SELECT COUNT(*) AS rec FROM ('.$sql.') AS rc';
-            if (is_array($options)) {
+            if (empty($options)) {
+                $this->query($sql);
+            } else {
                 $this->prepare($sql);
                 $this->execute($options);
-            } else {
-                $this->query($sql);
             }
 
             return (int)$this->statement->fetchColumn();

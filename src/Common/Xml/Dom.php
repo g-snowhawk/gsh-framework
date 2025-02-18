@@ -185,7 +185,6 @@ class Dom
                 if (false !== $exception) {
                     throw new DomException($this->error);
                 }
-                trigger_error($this->error, E_USER_ERROR);
             }
         } else {
             $this->parseError = true;

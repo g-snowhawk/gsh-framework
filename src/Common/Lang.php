@@ -28,7 +28,7 @@ class Lang
      *
      * @return string
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         if (false === property_exists($this, $name) && false === property_exists(__CLASS__, $name)) {
             return false;
@@ -44,7 +44,7 @@ class Lang
      *
      * @return string
      */
-    public function __isset($name)
+    public function __isset(string $name)
     {
         if (false === property_exists($this, $name)
             && false === property_exists(__CLASS__, $name)
@@ -110,7 +110,7 @@ class Lang
      *
      * @return string
      */
-    private static function words($package, $key, bool $final = false)
+    private static function words($package, string $key, bool $final = false)
     {
         if (!class_exists($package, true)) {
             return false;

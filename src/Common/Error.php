@@ -45,7 +45,7 @@ class Error
      *
      * @var int
      */
-    private $error_type = E_ALL|E_STRICT;
+    private $error_type = E_ALL;
 
     /**
      * logfile save path.
@@ -121,10 +121,7 @@ class Error
                         chmod(ERROR_LOG_DESTINATION, 0666);
                     }
                 } catch (ErrorException $e) {
-                    trigger_error(
-                        ERROR_LOG_DESTINATION . ' is no such file',
-                        E_USER_ERROR
-                    );
+                    trigger_error(ERROR_LOG_DESTINATION . ' is no such file', E_USER_WARNING);
                 }
             }
 
@@ -161,13 +158,8 @@ class Error
      * @param int    $errline
      * @param array  $errcontext
      */
-    public function errorHandler(
-        $errno,
-        $errstr,
-        $errfile,
-        $errline,
-        $errcontext = null
-    ) {
+    public function errorHandler($errno, $errstr, $errfile, $errline, $errcontext = null)
+    {
         // Do nothing with the `@' operator
         if (error_reporting() === 0) {
             return;
@@ -177,22 +169,13 @@ class Error
             return false;
         }
 
-        if ($errno === E_USER_ERROR
-         || $errno === E_USER_NOTICE
-         || $errno === E_STRICT
-         || $errno === E_NOTICE
-        ) {
+        if ($errno === E_USER_NOTICE || $errno === E_NOTICE) {
             $message = "$errstr in $errfile on line $errline.";
-            if ($errno === E_USER_ERROR) {
-                self::feedback($message, $errno);
-            }
             self::log($message, $errno);
-            if ($errno === E_USER_ERROR) {
-                $this->displayError($message, $errno);
-            }
 
             return false;
         }
+
         throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
     }
 
@@ -240,7 +223,7 @@ class Error
      */
     public function displayError($message, $errno, $tracer = null)
     {
-        if (in_array($errno, [E_NOTICE, E_USER_NOTICE, E_STRICT])) {
+        if (in_array($errno, [E_NOTICE, E_USER_NOTICE])) {
             return;
         }
 

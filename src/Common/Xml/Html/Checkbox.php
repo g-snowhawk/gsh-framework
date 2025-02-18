@@ -45,7 +45,7 @@ class Checkbox
         $entities = mb_encode_numericentity($attvalue, Text::CONVMAP);
         $decoders = mb_decode_numericentity($attvalue, Text::CONVMAP);
         if (Variable::isHash($value)) {
-            if (preg_match("/.+\[([a-zA-Z0-9\-_:\*\\\]+)\]/", $name, $match)) {
+            if (preg_match('/.+\[([^\[\]"]+)\]/', $name, $match)) {
                 $sec = $match[1];
                 $value = (isset($value[$sec])) ? $value[$sec] : null;
             }
