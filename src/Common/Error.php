@@ -351,7 +351,9 @@ class Error
                 ]
             );
         }
-        $feedbacks = array_values(array_filter($feedbacks, 'strlen'));
+        $feedbacks = array_values(array_filter($feedbacks, function ($val) {
+            return !is_null($val);
+        }));
         if (count($feedbacks) > 0) {
             $message .= PHP_EOL;
             $message .= PHP_EOL.'User: '.(Environment::server('http_x_forwarded_for') ?? Environment::server('remote_addr'));
