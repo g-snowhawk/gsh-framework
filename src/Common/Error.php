@@ -171,7 +171,7 @@ class Error
 
         if ($errno === E_USER_NOTICE || $errno === E_NOTICE) {
             $message = "$errstr in $errfile on line $errline.";
-            self::log($message, $errno);
+            static::log($message, $errno);
 
             return false;
         }
@@ -192,8 +192,8 @@ class Error
         $errfile = $ex->getFile();
         $errline = $ex->getLine();
         $message = "$errstr in $errfile on line $errline.";
-        self::feedback($message, $errno);
-        self::log($message, $errno, $errfile, $errline);
+        static::feedback($message, $errno);
+        static::log($message, $errno, $errfile, $errline);
         $message .= PHP_EOL.$ex->getTraceAsString();
         $this->displayError($message, $errno);
     }
@@ -208,8 +208,8 @@ class Error
             $message = "{$err['message']}"
                . " in {$err['file']} on line {$err['line']}. ";
             $errno = $err['type'];
-            self::feedback($message, $errno);
-            self::log($message, $errno);
+            static::feedback($message, $errno);
+            static::log($message, $errno);
             $this->displayError($message, $errno);
         }
     }
@@ -233,14 +233,14 @@ class Error
         }
 
         $src = (is_null($this->template))
-            ? self::htmlSource()
+            ? static::htmlSource()
             : file_get_contents($this->template, FILE_USE_INCLUDE_PATH);
-        if (!empty(self::$temporary_template)) {
+        if (!empty(static::$temporary_template)) {
             $src = file_get_contents(
-                self::$temporary_template,
+                static::$temporary_template,
                 FILE_USE_INCLUDE_PATH
             );
-            self::$temporary_template = null;
+            static::$temporary_template = null;
         }
         $message = htmlspecialchars(
             $message,
@@ -280,7 +280,7 @@ class Error
             );
         }
 
-        $status = self::ERROR_HEADER[self::$http_status];
+        $status = self::ERROR_HEADER[static::$http_status];
         if (!empty($status)) {
             header($status);
         }
@@ -299,7 +299,7 @@ class Error
      */
     public static function feedback($message, $errno)
     {
-        if (!defined('FEEDBACK_ADDR') || false !== self::$not_feedback) {
+        if (!defined('FEEDBACK_ADDR') || false !== static::$not_feedback) {
             return;
         }
 
@@ -395,7 +395,7 @@ class Error
             }
         }
 
-        self::rotate();
+        static::rotate();
     }
 
     /**
