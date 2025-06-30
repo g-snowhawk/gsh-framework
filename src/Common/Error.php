@@ -161,7 +161,7 @@ class Error
     public function errorHandler($errno, $errstr, $errfile, $errline, $errcontext = null)
     {
         // Do nothing with the `@' operator
-        if (error_reporting() === 0) {
+        if (!(error_reporting() & $errno)) {
             return;
         }
 
@@ -364,8 +364,20 @@ class Error
                 $message .= PHP_EOL;
                 $message .= PHP_EOL.'User-Agent: '.$user_agent;
             }
+            $additional_headers = '';
+            $constant = defined('ERROR_LOG_ADDITIONAL_HEADERS') ? ERROR_LOG_ADDITIONAL_HEADERS : [];
+            foreach ($constant as $key => $value) {
+                if (!empty($additional_headers)) {
+                    $additional_headers .= "\r\n";
+                }
+                $value = preg_replace('/[\r\n]+/', ' ', $value);
+                $additional_headers .= "{$key}: {$value}";
+            }
+            if ($additional_headers === '') {
+                $additional_headers = null;
+            }
             foreach ($feedbacks as $to) {
-                error_log($message, 1, $to);
+                error_log($message, 1, $to, $additional_headers);
             }
         }
     }
