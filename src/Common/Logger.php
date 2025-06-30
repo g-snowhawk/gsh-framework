@@ -60,9 +60,12 @@ class Logger
 
     private function toFile(array $log)
     {
+        array_walk($log, function(&$item, $key) {
+            $item = (!empty($item)) ? $item : '-';
+        });
         @file_put_contents(
             $this->path,
-            sprintf($this->format, $log),
+            vsprintf($this->format, $log),
             FILE_APPEND|LOCK_EX
         );
     }
