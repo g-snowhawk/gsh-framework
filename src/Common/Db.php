@@ -276,7 +276,7 @@ class Db
      *
      * @param array $options
      */
-    public function addOptions($options)
+    public function addOptions(array $options): void
     {
         foreach ($options as $key => $value) {
             $this->options[$key] = $value;
@@ -291,7 +291,7 @@ class Db
      *
      * @return bool
      */
-    public function open($timeout = null, array $optional_modes = [])
+    public function open(?int $timeout = null, array $optional_modes = [])
     {
         try {
             if (!is_null($timeout)) {
@@ -316,9 +316,9 @@ class Db
     /**
      * Close database connection.
      *
-     * @return bool
+     * @return void
      */
-    public function close()
+    public function close(): void
     {
         $this->handler = null;
     }
@@ -328,7 +328,7 @@ class Db
         return new PDO($this->dsn, $this->user, $this->password, $this->options);
     }
 
-    public function addSQLMode(array $user_mode)
+    public function addSQLMode(array $user_mode): void
     {
         $this->query('SELECT @@SESSION.sql_mode');
         $default_mode = explode(',', $this->fetchColumn());
@@ -339,7 +339,7 @@ class Db
         );
     }
 
-    public function removeSQLMode(array $user_mode)
+    public function removeSQLMode(array $user_mode): void
     {
         $this->query('SELECT @@SESSION.sql_mode');
         $default_mode = explode(',', $this->fetchColumn());
@@ -1403,11 +1403,11 @@ class Db
      *
      * @param string $type
      *
-     * @return bool
+     * @return int|false
      */
-    public static function is_number($type)
+    public static function is_number($type): int|false
     {
-        return preg_match('/^(double|float|real|dec|int|tinyint|smallint|mediumint|bigint|numeric|bit)/i', $type);
+        return preg_match('/^(double|float|real|dec|int|tinyint|smallint|mediumint|bigint|numeric|bit)/i', $type ?? '');
     }
 
     /**
@@ -1415,7 +1415,7 @@ class Db
      *
      * return string
      */
-    public function latestSQL()
+    public function latestSQL(): ?string
     {
         return $this->sql;
     }
@@ -1425,7 +1425,7 @@ class Db
      *
      * return int
      */
-    public function getRow()
+    public function getRow(): ?int
     {
         return $this->ecount;
     }
@@ -1472,7 +1472,7 @@ class Db
      *
      * @param int   $attribute
      *
-     * @return bool
+     * @return mixed
      */
     public function getAttribute($attribute)
     {
@@ -1487,7 +1487,7 @@ class Db
      *
      * @return bool
      */
-    public function setAttribute($attribute, $value)
+    public function setAttribute(int $attribute, $value): bool
     {
         return $this->handler->setAttribute($attribute, $value);
     }
@@ -1548,7 +1548,7 @@ class Db
      *
      * @return string
      */
-    public function normalizeSQL($sql)
+    public function normalizeSQL(string $sql): string
     {
         if ($this->driver === 'mysql') {
             $sql = preg_replace('/([^\\\])"/', '$1`', preg_replace('/^"/', '`', $sql));
@@ -1565,14 +1565,14 @@ class Db
      *
      * @return string
      */
-    private static function verifyColumns($columns)
+    private static function verifyColumns(string $columns): string
     {
         $columns = array_map([__CLASS__, 'quoteColumn'], explode(',', $columns));
 
         return implode(',', array_filter($columns));
     }
 
-    private static function quoteColumn($column, $quote = '"')
+    private static function quoteColumn(string $column, string $quote = '"'): string
     {
         $column = trim($column);
         if ($column === '*') {
@@ -1587,7 +1587,7 @@ class Db
         return $quote . str_replace($quote, '', $column) . $quote;
     }
 
-    private static function optimizeWhereClause($clause): string
+    private static function optimizeWhereClause(string $clause): string
     {
         if (preg_match('/^\s*$/', $clause)) {
             return '';
@@ -1641,7 +1641,7 @@ class Db
         return $this->query("ALTER TABLE `{$table}` AUTO_INCREMENT = " . (intval($max) + 1));
     }
 
-    public function setErrorMode($mode = null)
+    public function setErrorMode($mode = null): void
     {
         $this->error_mode = $mode;
     }
