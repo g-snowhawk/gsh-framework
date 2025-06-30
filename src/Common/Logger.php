@@ -60,7 +60,7 @@ class Logger
 
     private function toFile(array $log)
     {
-        array_walk($log, function(&$item, $key) {
+        array_walk($log, function (&$item, $key) {
             $item = (!empty($item)) ? $item : '-';
         });
         @file_put_contents(
