@@ -43,6 +43,7 @@ namespace Gsnowhawk\Common\Xml {
             'async', 'autofocus', 'checked', 'defer', 'disabled', 'draggable',
             'hidden', 'ismap', 'loop', 'multiple', 'novalidate', 'open',
             'readonly', 'required', 'reversed', 'scoped', 'seamless', 'selected',
+            'controls', 'autoplay', 'muted', 'playsinline',
         ];
 
         /**
@@ -1071,16 +1072,20 @@ namespace Gsnowhawk\Common\Xml {
                 . implode('|', array_map('preg_quote', $attrs, $args))
                 . ')((?!\s*=).*?'
                 . '>)/';
-            $source = preg_replace_callback(
-                $pattern,
-                function ($m) {
-                    return (
-                        substr_count($m[1], '"') % 2 !== 0
-                        || substr_count($m[3], '"') % 2 !== 0
-                    ) ? $m[0] : "{$m[1]}{$m[2]}=\"{$m[2]}\"{$m[3]}";
-                },
-                $source
-            );
+            do {
+                $source = preg_replace_callback(
+                    $pattern,
+                    function ($m) {
+                        return (
+                            substr_count($m[1], '"') % 2 !== 0
+                            || substr_count($m[3], '"') % 2 !== 0
+                        ) ? $m[0] : "{$m[1]}{$m[2]}=\"{$m[2]}\"{$m[3]}";
+                    },
+                    $source,
+                    -1,
+                    $count
+                );
+            } while (!empty($count));
 
             if (preg_match('/.*<html[^>]*>.*$/is', $source) && stripos($source, '</html>') === false) {
                 $source .= '</html>';
