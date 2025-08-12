@@ -43,7 +43,7 @@ namespace Gsnowhawk\Common\Xml {
             'async', 'autofocus', 'checked', 'defer', 'disabled', 'draggable',
             'hidden', 'ismap', 'loop', 'multiple', 'novalidate', 'open',
             'readonly', 'required', 'reversed', 'scoped', 'seamless', 'selected',
-            'controls', 'autoplay', 'muted', 'playsinline',
+            'controls', 'autoplay', 'muted', 'playsinline', 'allowfullscreen',
         ];
 
         /**
@@ -1067,11 +1067,13 @@ namespace Gsnowhawk\Common\Xml {
             $source = preg_replace("/[\/]+>/", '/>', $source);
 
             $attrs = self::BOOLEAN_ATTRIBUTES;
-            $args = array_fill(0, count($attrs), '/');
+            $repeat = count($attrs);
+            $args = array_fill(0, $repeat, '/');
             $pattern = '/(<[^<>]+\s+)('
                 . implode('|', array_map('preg_quote', $attrs, $args))
-                . ')((?!\s*=).*?'
+                . ')((?!\s*[=;"]).*?'
                 . '>)/';
+            $i = 0;
             do {
                 $source = preg_replace_callback(
                     $pattern,
@@ -1085,7 +1087,8 @@ namespace Gsnowhawk\Common\Xml {
                     -1,
                     $count
                 );
-            } while (!empty($count));
+                ++$i;
+            } while (!empty($count) && $i <= $repeat);
 
             if (preg_match('/.*<html[^>]*>.*$/is', $source) && stripos($source, '</html>') === false) {
                 $source .= '</html>';
