@@ -794,7 +794,8 @@ class Mail
         }
 
         try {
-            $this->socket = @fsockopen($server, $port, $errno, $errstr, 5);
+            $timeout = (defined('SMTP_TIMEOUT')) ? SMTP_TIMEOUT : 5;
+            $this->socket = @fsockopen($server, $port, $errno, $errstr, $timeout);
         } catch (ErrorException $e) {
             if (preg_match('/connection timed out/is', $errstr)) {
                 $this->error = 'Connection timed out';
