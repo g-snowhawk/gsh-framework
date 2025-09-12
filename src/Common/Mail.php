@@ -182,15 +182,16 @@ class Mail
     /**
      * Object constructor.
      *
-     * @param string $host
-     * @param number $port
-     * @param string $user
-     * @param string $passwd
+     * @param string     $host
+     * @param string|int $port
+     * @param string     $user
+     * @param string     $passwd
+     * @param string     $encoding
      */
-    public function __construct($host = '', $port = '', $user = '', $passwd = '', $encoding = 'jis')
+    public function __construct(string $host = '', string|int $port = '', string $user = '', string $passwd = '', string $encoding = 'jis')
     {
-        $this->smtp = $this->setHost($host);
-        $this->port = $this->setPort($port);
+        $this->setHost($host);
+        $this->setPort($port);
         $this->user = $user;
         $this->passwd = $passwd;
         $this->encoding = $encoding;
@@ -210,44 +211,55 @@ class Mail
      * SMTP host.
      *
      * @param string $host
-     *
-     * @return string
      */
-    public function setHost($host = '')
+    public function setHost(string $host = ''): void
     {
-        if (!empty($host)) {
-            return $host;
-        }
-        $default = ini_get('SMTP');
-        $host = (empty($defailt)) ? 'localhost' : $defailt;
-        // Windows OS
-        if (preg_match('/^WIN/i', PHP_OS)) {
-            if ($this->smtp != 'localhost' && $host != ini_get('SMTP')) {
-                ini_set('SMTP', $host);
+        if (empty($host)) {
+            $host = ini_get('SMTP');
+            if (empty($host)) {
+                $host = 'localhost';
             }
         }
 
-        return $host;
+        $this->smtp = $host;
+
+        // Windows OS
+        if (preg_match('/^WIN/i', PHP_OS)) {
+            if ($this->smtp !== 'localhost' && $host !== ini_get('SMTP')) {
+                ini_set('SMTP', $host);
+            }
+        }
     }
 
     /**
      * SMTP port.
      *
-     * @param number $port
-     *
-     * @return string
+     * @param string $port
      */
-    public function setPort($port = null)
+    public function setPort(string|int $port): void
     {
-        if (!empty($port)) {
-            return $port;
+        if (empty($port)) {
+            $port = ini_get('smtp_port');
+            if (empty($port)) {
+                $port = 25;
+            }
         }
-        $default = ini_get('smtp_port');
 
-        return (!empty($default)) ? $default : 25;
+        $int = intval($port);
+
+        if ($int < 1 || $int > 65535) {
+            throw new ErrorException("Invalit port number ($port)");
+        }
+
+        $this->port = $port;
     }
 
-    public function useTLS($use = true)
+    /**
+     * Using TLS
+     *
+     * @param bool $use
+     */
+    public function useTLS(bool $use = true): void
     {
         $this->tls = $use;
     }
@@ -256,12 +268,10 @@ class Mail
      * SET Encoding.
      *
      * @param string $encoding
-     *
-     * @return string
      */
-    public function setEncoding($encoding)
+    public function setEncoding(string $encoding): void
     {
-        return $this->encoding = $encoding;
+        $this->encoding = $encoding;
     }
 
     /**
@@ -269,7 +279,7 @@ class Mail
      *
      * @param string $envfrom
      */
-    public function envfrom($envfrom)
+    public function envfrom(string $envfrom): void
     {
         $this->envfrom = $this->normalizeAddress($envfrom);
     }
@@ -279,7 +289,7 @@ class Mail
      *
      * @param string $from
      */
-    public function from($from)
+    public function from(string $from): void
     {
         $this->from = $this->normalizeAddress($from);
     }
@@ -287,10 +297,10 @@ class Mail
     /**
      * Set To address.
      *
-     * @param string $to
-     * @param string $prop
+     * @param ?string $to
+     * @param string  $prop
      */
-    public function to($to = null, $prop = 'to')
+    public function to(?string $to = null, $prop = 'to'): void
     {
         if (is_string($to) && strpos($to, ',') !== false) {
             $to = array_map('trim', explode(',', $to));
@@ -314,9 +324,9 @@ class Mail
     /**
      * Set Cc address.
      *
-     * @param string $cc
+     * @param ?string $cc
      */
-    public function cc($cc = null)
+    public function cc(?string $cc = null): void
     {
         $this->to($cc, 'cc_addr');
     }
@@ -324,9 +334,9 @@ class Mail
     /**
      * Set Bcc address.
      *
-     * @param string $bcc
+     * @param ?string $bcc
      */
-    public function bcc($bcc = null)
+    public function bcc(?string $bcc = null): void
     {
         $this->to($bcc, 'bcc_addr');
     }
@@ -334,9 +344,10 @@ class Mail
     /**
      * Set Attachment path.
      *
-     * @param mixed $attachment
+     * @param mixed  $attachment
+     * @param string $attachment
      */
-    public function attachment($attachment = null, $filename = null)
+    public function attachment($attachment = null, ?string $filename = null): void
     {
         if (is_null($attachment)) {
             $this->attachment = [];
@@ -358,7 +369,7 @@ class Mail
      *
      * @param string $subject
      */
-    public function subject($subject)
+    public function subject(string $subject): void
     {
         $str = preg_replace("/(\r\n|\r|\n)/", ' ', $subject);
         $this->subject = $this->encodeHeader($str);
@@ -369,7 +380,7 @@ class Mail
      *
      * @param string $message
      */
-    public function message($message)
+    public function message(string $message): void
     {
         $str = preg_replace("/(\r\n|\r)/", $this->delimiter, $message);
         $this->message = $this->convertText($str);
@@ -380,7 +391,7 @@ class Mail
      *
      * @param string $source
      */
-    public function html($source)
+    public function html(string $source): void
     {
         $str = preg_replace("/(\r\n|\r)/", $this->delimiter, $source);
         if (empty($this->message)) {
@@ -395,7 +406,7 @@ class Mail
      * @param string $key
      * @param string $value
      */
-    public function setHeader($key, $value)
+    public function setHeader(string $key, string $value): void
     {
         $this->head[$key] = preg_replace("/[\s]+/", ' ', $value);
     }
@@ -407,7 +418,7 @@ class Mail
      *
      * @return string
      */
-    public function normalizeAddress($addr)
+    public function normalizeAddress(string $addr): string
     {
         if (preg_match('/^([^<]+)<([^>]+)>/', $addr, $match)) {
             $addr = $this->encodeHeader($match[1]).'<'.$match[2].'>';
@@ -423,7 +434,7 @@ class Mail
      *
      * @return string
      */
-    public function stripAddress($addr)
+    public function stripAddress(string $addr): string
     {
         return (preg_match('/^[^<]*<([^>]+)>/', $addr, $match)) ? $match[1] : $addr;
     }
@@ -435,7 +446,7 @@ class Mail
      *
      * @return string
      */
-    public function encodeHeader($str)
+    public function encodeHeader(string $str): string
     {
         $encoded = base64_encode($this->convertText($str));
 
@@ -449,7 +460,7 @@ class Mail
      *
      * @return string
      */
-    public function convertText($str)
+    public function convertText(string $str): string
     {
         if ($this->encoding === 'utf-8') {
             return $str;
@@ -465,7 +476,7 @@ class Mail
      *
      * @return string
      */
-    public function createHeader($boundary)
+    public function createHeader(string $boundary): string
     {
         $cs = $this->getCharset();
         $dlm = $this->delimiter;
@@ -502,12 +513,12 @@ class Mail
     /**
      * Create Attachment.
      *
-     * @param string $boundary
-     * @param string $file
+     * @param string       $boundary
+     * @param string|array $file
      *
      * @return string
      */
-    public function createAttachment($boundary, $file)
+    public function createAttachment(string $boundary, string|array $file): string
     {
         $message = '';
         if (is_array($file)) {
@@ -539,7 +550,7 @@ class Mail
      *
      * @return string
      */
-    public function createMessage($boundary)
+    public function createMessage(string $boundary): string
     {
         $cs = $this->getCharset();
         $dlm = $this->delimiter;
@@ -582,7 +593,7 @@ class Mail
      *
      * @return bool
      */
-    public function send()
+    public function send(): bool
     {
         if (empty($this->to)) {
             $this->error = 'Empty Rceipt to Email address.';
@@ -624,7 +635,7 @@ class Mail
      *
      * @return bool
      */
-    public function mail($to, $subject, $message, $header)
+    public function mail(string $to, string $subject, string $message, string $header): bool
     {
         $server = $this->smtp;
         $from = $this->from;
@@ -694,9 +705,9 @@ class Mail
      *
      * @param string $command
      *
-     * @return mixed
+     * @return string|false
      */
-    public function command($command)
+    public function command(string $command): string|false
     {
         fputs($this->socket, $command.$this->delimiter);
         $this->log .= $command.$this->delimiter;
@@ -743,7 +754,7 @@ class Mail
      *
      * @return bool
      */
-    public function auth()
+    public function auth(): bool
     {
         $user = $this->user;
         $passwd = $this->passwd;
@@ -782,9 +793,9 @@ class Mail
     /**
      * Open connection.
      *
-     * return boolean
+     * return bool
      */
-    public function open()
+    public function open(): bool
     {
         $server = $this->smtp;
         $port = $this->port;
@@ -840,9 +851,9 @@ class Mail
     /**
      * Close connection.
      *
-     * return boolean
+     * return bool
      */
-    public function close()
+    public function close(): bool
     {
         $result = $this->command('QUIT');
 
@@ -854,7 +865,7 @@ class Mail
      *
      * @return string
      */
-    public function getLog()
+    public function getLog(): string
     {
         return $this->log;
     }
@@ -864,7 +875,7 @@ class Mail
      *
      * @return string
      */
-    public function error()
+    public function error(): string
     {
         return $this->error;
     }
@@ -874,12 +885,17 @@ class Mail
      *
      * @return string
      */
-    public function getCharset()
+    public function getCharset(): string
     {
         return $this->charset[$this->encoding];
     }
 
-    public static function noreplyAt($user_name = 'no-reply')
+    /**
+     * no-reply address.
+     *
+     * @return string
+     */
+    public static function noreplyAt(?string $user_name = 'no-reply'): string
     {
         $host = Environment::server('http_host') ?? '';
         $host = preg_replace('/:[0-9]+$/', '', $host);
@@ -893,6 +909,11 @@ class Mail
         return "{$user_name}@{$host}";
     }
 
+    /**
+     * Parse E-mail source.
+     *
+     * @return ?array
+     */
     public static function parseEmailSource($source): ?array
     {
         list($header, $body) = preg_split('/(\r\n\r\n|\r\r|\n\n)/s', $source, 2);
