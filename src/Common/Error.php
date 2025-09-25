@@ -12,6 +12,7 @@
 namespace Gsnowhawk\Common;
 
 use ErrorException;
+use Gsnowhawk\Common\Mail;
 
 /**
  * Custom Error Handler.
@@ -338,6 +339,29 @@ class Error
             fclose($fh);
         }
 
+        $smtp = null;
+        if (defined('FEEDBACK_HOST') && defined('FEEDBACK_PORT')) {
+            $host = FEEDBACK_HOST;
+            $port = FEEDBACK_PORT;
+            $user = (defined('FEEDBACK_USER')) ? FEEDBACK_USER : '';
+            $pass = (defined('FEEDBACK_PASS')) ? FEEDBACK_PASS : '';
+            $smtp = new Mail($host, $port, $user, $pass);
+
+            $unknown = function () {
+                if (false === ($hostname = gethostname())) {
+                    $hostname = 'localhost';
+                }
+
+                return 'no-reply@'.$hostname;
+            };
+            $from = (defined('FEEDBACK_FROM')) ? FEEDBACK_FROM : $unknown();
+            $smtp->from($from);
+
+            $subject = (defined('FEEDBACK_TITLE')) ? FEEDBACK_TITLE : 'PHP error_log message';
+            $smtp->subject($subject);
+
+        }
+
         $configuration = Text::explode(',', FEEDBACK_ADDR);
         $feedbacks = [];
         foreach ($configuration as $feedback_addr) {
@@ -364,20 +388,37 @@ class Error
                 $message .= PHP_EOL;
                 $message .= PHP_EOL.'User-Agent: '.$user_agent;
             }
+
+            if (!is_null($smtp)) {
+                $smtp->message($message);
+            }
+
             $additional_headers = '';
             $constant = defined('ERROR_LOG_ADDITIONAL_HEADERS') ? ERROR_LOG_ADDITIONAL_HEADERS : [];
+
             foreach ($constant as $key => $value) {
                 if (!empty($additional_headers)) {
                     $additional_headers .= "\r\n";
                 }
                 $value = preg_replace('/[\r\n]+/', ' ', $value);
                 $additional_headers .= "{$key}: {$value}";
+
+                if (!is_null($smtp)) {
+                    $smtp->setHeader($key, $value);
+                }
             }
             if ($additional_headers === '') {
                 $additional_headers = null;
             }
+
             foreach ($feedbacks as $to) {
-                error_log($message, 1, $to, $additional_headers);
+                if (is_null($smtp)) {
+                    error_log($message, 1, $to, $additional_headers);
+                } else {
+                    $smtp->to($to);
+                    $smtp->send();
+                    $smtp->to();
+                }
             }
         }
     }

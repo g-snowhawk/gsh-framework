@@ -800,7 +800,7 @@ class Mail
         $server = $this->smtp;
         $port = $this->port;
 
-        if ((int)$port === 465) {
+        if ((int)$port === 465 && stripos($server, 'tls://') !== 0) {
             $server = "tls://{$server}";
         }
 
