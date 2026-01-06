@@ -12,6 +12,7 @@
 namespace Gsnowhawk\Common\Xml;
 
 use DOMDocument;
+use DOMElement;
 use ErrorException;
 use Gsnowhawk\Common\Xml\Html;
 

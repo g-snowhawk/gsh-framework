@@ -11,6 +11,10 @@
 
 namespace Gsnowhawk\Common\Xml\Html;
 
+use DOMElement;
+use Gsnowhawk\Common\Html\Form;
+use Gsnowhawk\Common\Xml\Html as XMLHtml;
+
 /**
  * HTML form textarea class.
  *
@@ -32,7 +36,7 @@ class Textarea
      * @param object $element
      * @param string $value
      */
-    public static function setValue($fmObj, $html, $element, $value)
+    public static function setValue(Form $fmObj, XMLHtml $html, DOMElement $element, string $value)
     {
         $value = preg_replace("/\r\n/", "\n", $value);
         $node = $element->ownerDocument->createTextNode($value);

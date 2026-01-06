@@ -38,7 +38,6 @@ class Validator
         if (is_array($value) && isset($chk['subkey'])) {
             $value = $value[$chk['subkey']];
         }
-        $method = '_' . strtoupper(filter_input(INPUT_SERVER, 'REQUEST_METHOD'));
 
         switch ($type) {
             case 'mail':
@@ -113,8 +112,9 @@ class Validator
                 }
                 break;
             case 'retype':
-                if (isset($$method[$stype])) {
-                    $condition = $$method[$stype];
+                $condition = '';
+                if (isset($_REQUEST[$stype])) {
+                    $condition = $_REQUEST[$stype];
                 }
                 if ($condition === $value) {
                     $result = true;
@@ -123,8 +123,8 @@ class Validator
             case 'if':
                 $result = true;
                 $condition = '';
-                if (isset($$method[$stype])) {
-                    $condition = $$method[$stype];
+                if (isset($_REQUEST[$stype])) {
+                    $condition = $_REQUEST[$stype];
                 }
                 if ($condition === $svalue) {
                     $result = !empty($value);

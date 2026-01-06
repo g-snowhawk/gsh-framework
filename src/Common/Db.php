@@ -138,6 +138,13 @@ class Db
     private $error_mode = null;
 
     /**
+     * Exception messages
+     *
+     * @var array
+     */
+    private $fault;
+
+    /**
      * Object Constructor.
      *
      * @param string $driver   Database driver

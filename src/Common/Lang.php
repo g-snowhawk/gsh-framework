@@ -66,8 +66,10 @@ class Lang
      *
      * @return string
      */
-    public static function translate($key, $package = null, $locale = null)
+    public static function translate(string $key, $package = null, $locale = null)
     {
+        $delimiter = (defined('NS_SEPARATOR')) ? NS_SEPARATOR : '\\';
+
         if (empty($locale)) {
             if (false === ($locale = getenv('GSH_LOCALE'))) {
                 $locale = 'En';
@@ -81,7 +83,7 @@ class Lang
             }
         }
 
-        $package_suffix = '\\Lang\\'.$locale;
+        $package_suffix = "{$delimiter}Lang{$delimiter}{$locale}";
 
         if (is_null($package)) {
             $caller = debug_backtrace();
@@ -92,10 +94,11 @@ class Lang
             if ($result = self::words($package . $package_suffix, $key)) {
                 return $result;
             }
-            if (strpos($package, '\\') === false) {
+            if (strpos($package, $delimiter) === false) {
                 $package = '';
             }
-            $package = preg_replace('/\\\\[^\\\\]+$/', '', $package);
+            //$package = preg_replace('/\\\\[^\\\\]+$/', '', $package);
+            $package = preg_replace('/'.preg_quote($delimiter, '/').'[^'.preg_quote($delimiter, '/').']+$/', '', $package);
         }
 
         return self::words($package . $package_suffix, $key, true);
@@ -146,7 +149,7 @@ class Lang
         return (property_exists($inst, $key)) ? $inst->$key : '';
     }
 
-    private static function lookup($dictionary_path, $key, $locale)
+    private static function lookup($dictionary_path, string $key, $locale)
     {
         if (!is_array(self::$dictionary)) {
             self::$dictionary = [];
