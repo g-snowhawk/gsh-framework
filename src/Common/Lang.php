@@ -63,10 +63,11 @@ class Lang
      * @param string $key
      * @param mixed  $package
      * @param mixed  $locale
+     * @param bool   $usekey
      *
      * @return string
      */
-    public static function translate(string $key, $package = null, $locale = null)
+    public static function translate(string $key, $package = null, $locale = null, bool $usekey = false)
     {
         $delimiter = (defined('NS_SEPARATOR')) ? NS_SEPARATOR : '\\';
 
@@ -80,6 +81,8 @@ class Lang
             $phrase = self::lookup(DICTIONARY_PATH, $key, $locale);
             if (!is_null($phrase)) {
                 return $phrase;
+            } elseif ($usekey) {
+                return $key;
             }
         }
 
