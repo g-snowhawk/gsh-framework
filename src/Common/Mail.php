@@ -83,6 +83,7 @@ class Mail
      * @var string
      */
     private $subject = '';
+    private $raw_subject = '';
 
     /**
      * Plain text content.
@@ -146,6 +147,13 @@ class Mail
      * @var string
      */
     private $log = '';
+
+    /**
+     * copy
+     *
+     * @var string
+     */
+    private $eml = '';
 
     /**
      * Error message.
@@ -255,6 +263,16 @@ class Mail
     }
 
     /**
+     * Set delimiter
+     *
+     * @param string $delimiter
+     */
+    public function setDelimiter(string $delimiter): void
+    {
+        $this->delimiter = $delimiter;
+    }
+
+    /**
      * Using TLS
      *
      * @param bool $use
@@ -282,6 +300,16 @@ class Mail
     public function envfrom(string $envfrom): void
     {
         $this->envfrom = $this->normalizeAddress($envfrom);
+    }
+
+    /**
+     * Set reply to address.
+     *
+     * @param string $replay_to
+     */
+    public function replyto(string $replay_to): void
+    {
+        $this->head['Reply-To'] = $this->normalizeAddress($replay_to);
     }
 
     /**
@@ -373,6 +401,7 @@ class Mail
     {
         $str = preg_replace("/(\r\n|\r|\n)/", ' ', $subject);
         $this->subject = $this->encodeHeader($str);
+        $this->raw_subject = $str;
     }
 
     /**
@@ -494,10 +523,16 @@ class Mail
             }
         }
 
+        $isset_date = false;
         foreach ($this->head as $key => $value) {
             $header .= "$key: $value".$dlm;
+            if (strtolower($key) === 'date') {
+                $isset_date = true;
+            }
         }
-        $header .= 'Date: ' . date(DATE_RFC822) . $dlm;
+        if (false === $isset_date) {
+            $header .= 'Date: ' . date(DATE_RFC822) . $dlm;
+        }
         $header .= 'Mime-Version: 1.0'.$dlm;
         if (empty($this->attachment) && empty($this->html)) {
             $header .= "Content-Type: text/plain; charset=$cs".$dlm;
@@ -614,6 +649,10 @@ class Mail
                 && !empty(ini_get('sendmail_path'))
             ) ? '-f'.$this->envfrom : '';
 
+            $this->eml = 'Subject: '.$this->subject.$this->delimiter
+                       . 'To: '.$to.$this->delimiter
+                       . $header.$this->delimiter
+                       . $message;
 
             return mail($to, $this->subject, $message, $header, $envfrom);
         } else {
@@ -650,10 +689,12 @@ class Mail
                 $this->error = $result;
 
                 return false;
+            } else {
+                stream_socket_enable_crypto($this->socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
             }
             if (false === $this->command("EHLO $server")) {
                 fclose($this->socket);
-                $this->smtp = "tls://$server";
+                $this->smtp = "ssl://$server";
                 $this->port = 465;
                 if (false === $this->open()) {
                     return false;
@@ -683,16 +724,16 @@ class Mail
         }
 
         $dlm = $this->delimiter;
-        $content = "Subject: $subject".$dlm.
-                   "To: $to".$dlm.
-                   "$header".$dlm.
-                   "$message".$dlm.
-                   $dlm.'.';
-        if (false === $result = $this->command($content)) {
+        $this->eml = "Subject: {$subject}".$dlm
+                   . "To: {$to}".$dlm
+                   . $header.$dlm
+                   . $message.$dlm;
+        if (false === $result = $this->command($this->eml.$dlm.'.')) {
             return false;
         }
         if (!preg_match('/^250 /', $result)) {
             $this->error = $result;
+            $this->eml = '';
 
             return false;
         }
@@ -800,7 +841,7 @@ class Mail
         $server = $this->smtp;
         $port = $this->port;
 
-        if ((int)$port === 465) {
+        if ((int)$port === 465 && stripos($server, 'tls://') !== 0) {
             $server = "tls://{$server}";
         }
 
@@ -964,5 +1005,10 @@ class Mail
         // TODO: Parse body for multipart/mixed
 
         return [$headers, $body];
+    }
+
+    public function latestContents()
+    {
+        return $this->eml;
     }
 }

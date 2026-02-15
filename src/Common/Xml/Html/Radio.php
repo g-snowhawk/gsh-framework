@@ -104,10 +104,8 @@ class Radio
                 $parent->removeChild($parent->firstChild);
             }
             $html->appendChild($src, $parent);
-        } else {
-            if (is_object($parent)) {
-                $element->parentNode->removeChild($element);
-            }
+        } elseif (!is_null($element->parentNode)) {
+            $element->parentNode->removeChild($element);
         }
     }
 }

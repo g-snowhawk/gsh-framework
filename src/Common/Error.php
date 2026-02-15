@@ -12,6 +12,7 @@
 namespace Gsnowhawk\Common;
 
 use ErrorException;
+use Gsnowhawk\Common\Mail;
 
 /**
  * Custom Error Handler.
@@ -338,6 +339,22 @@ class Error
             fclose($fh);
         }
 
+        $smtp = null;
+        if (defined('FEEDBACK_HOST') && defined('FEEDBACK_PORT')) {
+            $host = FEEDBACK_HOST;
+            $port = FEEDBACK_PORT;
+            $user = (defined('FEEDBACK_USER')) ? FEEDBACK_USER : '';
+            $pass = (defined('FEEDBACK_PASS')) ? FEEDBACK_PASS : '';
+            $smtp = new Mail($host, $port, $user, $pass);
+
+            if (defined('FEEDBACK_RETURN_PATH')) {
+                $smtp->envfrom(FEEDBACK_RETURN_PATH);
+            }
+
+            $subject = (defined('FEEDBACK_TITLE')) ? FEEDBACK_TITLE : 'PHP error_log message';
+            $smtp->subject($subject);
+        }
+
         $configuration = Text::explode(',', FEEDBACK_ADDR);
         $feedbacks = [];
         foreach ($configuration as $feedback_addr) {
@@ -355,29 +372,64 @@ class Error
             return !is_null($val);
         }));
         if (count($feedbacks) > 0) {
-            $message .= PHP_EOL;
-            $message .= PHP_EOL.'User: '.(Environment::server('http_x_forwarded_for') ?? Environment::server('remote_addr'));
-            $message .= PHP_EOL.'Host: '.Environment::server('server_name');
-            $message .= PHP_EOL.'Time: '.date('Y-m-d H:i:s');
-            $user_agent = Environment::server('http_user_agent');
-            if (!empty($user_agent)) {
-                $message .= PHP_EOL;
-                $message .= PHP_EOL.'User-Agent: '.$user_agent;
-            }
+            // Create header
             $additional_headers = '';
             $constant = defined('ERROR_LOG_ADDITIONAL_HEADERS') ? ERROR_LOG_ADDITIONAL_HEADERS : [];
+
+            $from = null;
             foreach ($constant as $key => $value) {
+                if (!is_null($smtp) && strtolower($key) === 'from') {
+                    $from = $value;
+                    continue;
+                }
                 if (!empty($additional_headers)) {
                     $additional_headers .= "\r\n";
                 }
                 $value = preg_replace('/[\r\n]+/', ' ', $value);
                 $additional_headers .= "{$key}: {$value}";
+
+                if (!is_null($smtp)) {
+                    $smtp->setHeader($key, $value);
+                }
             }
             if ($additional_headers === '') {
                 $additional_headers = null;
             }
+
+            // Create message
+            $message .= PHP_EOL;
+            $message .= PHP_EOL.'User: '.(Environment::server('http_x_forwarded_for') ?? Environment::server('remote_addr'));
+            $message .= PHP_EOL.'Host: '.Environment::server('server_name');
+            $message .= PHP_EOL.'Time: '.date('Y-m-d H:i:s');
+
+            $user_agent = Environment::server('http_user_agent');
+            if (!empty($user_agent)) {
+                $message .= PHP_EOL;
+                $message .= PHP_EOL.'User-Agent: '.$user_agent;
+            }
+
+            if (!is_null($smtp)) {
+                $unknown = function () {
+                    if (false === ($hostname = gethostname())) {
+                        $hostname = 'localhost';
+                    }
+
+                    return 'no-reply@'.$hostname;
+                };
+                $from = (defined('FEEDBACK_FROM')) ? FEEDBACK_FROM : $unknown();
+                $smtp->from($from);
+
+                $smtp->message($message);
+            }
+
             foreach ($feedbacks as $to) {
-                error_log($message, 1, $to, $additional_headers);
+                if (is_null($smtp)) {
+                    error_log($message, 1, $to, $additional_headers);
+                } else {
+                    $smtp->to($to);
+                    $smtp->send();
+                    $smtp->to();
+                }
             }
         }
     }
