@@ -149,6 +149,13 @@ class Mail
     private $log = '';
 
     /**
+     * copy
+     *
+     * @var string
+     */
+    private $eml = '';
+
+    /**
      * Error message.
      *
      * @var string
@@ -642,6 +649,10 @@ class Mail
                 && !empty(ini_get('sendmail_path'))
             ) ? '-f'.$this->envfrom : '';
 
+            $this->eml = 'Subject: '.$this->subject.$this->delimiter
+                       . 'To: '.$to.$this->delimiter
+                       . $header.$this->delimiter
+                       . $message;
 
             return mail($to, $this->subject, $message, $header, $envfrom);
         } else {
@@ -713,16 +724,16 @@ class Mail
         }
 
         $dlm = $this->delimiter;
-        $content = "Subject: $subject".$dlm.
-                   "To: $to".$dlm.
-                   "$header".$dlm.
-                   "$message".$dlm.
-                   $dlm.'.';
-        if (false === $result = $this->command($content)) {
+        $this->eml = "Subject: {$subject}".$dlm
+                   . "To: {$to}".$dlm
+                   . $header.$dlm
+                   . $message.$dlm;
+        if (false === $result = $this->command($this->eml.$dlm.'.')) {
             return false;
         }
         if (!preg_match('/^250 /', $result)) {
             $this->error = $result;
+            $this->eml = '';
 
             return false;
         }
@@ -994,5 +1005,10 @@ class Mail
         // TODO: Parse body for multipart/mixed
 
         return [$headers, $body];
+    }
+
+    public function latestContents()
+    {
+        return $this->eml;
     }
 }
