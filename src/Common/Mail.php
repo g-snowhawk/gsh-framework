@@ -167,7 +167,7 @@ class Mail
      *
      * @var string
      */
-    private $delimiter = "\n";
+    private $delimiter = "\r\n";
 
     /**
      * encode.
@@ -846,7 +846,7 @@ class Mail
         }
 
         try {
-            $timeout = (defined('SMTP_TIMEOUT')) ? SMTP_TIMEOUT : 5;
+            $timeout = (defined('SMTP_TIMEOUT')) ? SMTP_TIMEOUT : 30;
             $this->socket = @fsockopen($server, $port, $errno, $errstr, $timeout);
         } catch (ErrorException $e) {
             if (preg_match('/connection timed out/is', $errstr)) {
