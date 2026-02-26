@@ -43,7 +43,7 @@ namespace Gsnowhawk\Common\Xml {
             'async', 'autofocus', 'checked', 'defer', 'disabled', 'draggable',
             'hidden', 'ismap', 'loop', 'multiple', 'novalidate', 'open',
             'readonly', 'required', 'reversed', 'scoped', 'seamless', 'selected',
-            'controls', 'autoplay', 'muted', 'playsinline', 'allowfullscreen',
+            'controls', 'autoplay', 'muted', 'playsinline', 'allowfullscreen', 'crossorigin',
         ];
 
         /**
