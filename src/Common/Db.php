@@ -968,14 +968,18 @@ class Db
                 }
                 $key = preg_replace('/^:/', '', $key, 1);
                 $pattern[] = '/'.preg_quote(preg_replace('/^:?/', ':', $key, 1), '/').'/';
-                $replace[] = (is_null($option)) ? 'NULL' : $this->quote(str_replace('$', '$\\', $option));
+                $replace[] = (is_null($option))
+                    ? 'NULL'
+                    : $this->quote(str_replace('$', '$\\', str_replace('\\', '\\\\', $option)));
             }
             $statement = preg_replace($pattern, $replace, $statement);
         } else {
             $holder = $options;
         }
         foreach ($holder as $option) {
-            $replace = (is_null($option)) ? 'NULL' : $this->quote(str_replace('$', '$\\', $option));
+            $replace = (is_null($option))
+                ? 'NULL'
+                : $this->quote(str_replace('$', '$\\', str_replace('\\', '\\\\', $option)));
             $statement = preg_replace("/\?/", $replace, $statement, 1);
         }
 
