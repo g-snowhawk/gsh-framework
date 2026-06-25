@@ -41,7 +41,8 @@ class Radio
         $attvalue = Html::rewindEntityReference($element->getAttribute('value'));
         $entities = mb_encode_numericentity($attvalue, Text::CONVMAP);
         $decoders = mb_decode_numericentity($attvalue, Text::CONVMAP);
-        if ($value == $attvalue || $value == $entities || $value == $decoders) {
+        $specials = htmlspecialchars_decode($attvalue);
+        if ($value == $attvalue || $value == $entities || $value == $decoders || $value == $specials) {
             $element->setAttribute('checked', 'checked');
         } else {
             $element->removeAttribute('checked');
