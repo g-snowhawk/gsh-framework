@@ -53,8 +53,9 @@ class Select
             $attvalue = Html::rewindEntityReference($optValue);
             $entities = mb_encode_numericentity($attvalue, Text::CONVMAP);
             $decoders = mb_decode_numericentity($attvalue, Text::CONVMAP);
-            if ((is_array($val) && (in_array($attvalue, $val) || in_array($entities, $val) || in_array($decoders, $val))) ||
-                ($attvalue == $val || $entities == $val || $decoders == $val)
+            $specials = htmlspecialchars_decode($attvalue);
+            if ((is_array($val) && (in_array($attvalue, $val) || in_array($entities, $val) || in_array($decoders, $val) || in_array($specials, $val))) ||
+                ($attvalue == $val || $entities == $val || $decoders == $val || $specials == $val)
             ) {
                 $opt->setAttribute('selected', 'selected');
             } else {

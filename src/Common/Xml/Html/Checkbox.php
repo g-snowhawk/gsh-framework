@@ -44,14 +44,15 @@ class Checkbox
         $attvalue = Html::rewindEntityReference($element->getAttribute('value'));
         $entities = mb_encode_numericentity($attvalue, Text::CONVMAP);
         $decoders = mb_decode_numericentity($attvalue, Text::CONVMAP);
+        $specials = htmlspecialchars_decode($attvalue);
         if (Variable::isHash($value)) {
             if (preg_match('/.+\[([^\[\]"]+)\]/', $name, $match)) {
                 $sec = $match[1];
                 $value = (isset($value[$sec])) ? $value[$sec] : null;
             }
         }
-        if ((is_array($value) && (in_array($attvalue, $value) || in_array($entities, $value) || in_array($decoders, $value))) ||
-            ($attvalue == $value || $entities == $value || $decoders == $value)
+        if ((is_array($value) && (in_array($attvalue, $value) || in_array($entities, $value) || in_array($decoders, $value) || in_array($specials, $value))) ||
+            ($attvalue == $value || $entities == $value || $decoders == $value || $specials == $value)
         ) {
             $element->setAttribute('checked', 'checked');
         } else {
