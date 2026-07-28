@@ -1574,6 +1574,65 @@ namespace {
             }
         }
 
+        public function insertStyle($href, $before)
+        {
+            $doc = $this->ownerDocument;
+            $newnode = $doc->createElement('link');
+            $newnode->setAttribute('rel', 'stylesheet');
+            $newnode->setAttribute('href', $href);
+            $refnode = $before->nextSibling;
+            if ($refnode) {
+                $this->insertBefore($newnode, $refnode);
+            } else {
+                $this->appendChild($newnode);
+            }
+        }
+
+        public function prependStyle($href, array $options = [])
+        {
+            $this->appendStyle($href, $options, true);
+        }
+
+        public function appendStyle($href, array $options = [], $prepend = false)
+        {
+            $doc = $this->ownerDocument;
+            $root_node = $doc->getElementsByTagName('head');
+            $append = false;
+            $node = $this->querySelector('//link[@href="'.$href.'"]');
+            if (!$node) {
+                $node = $doc->createElement('link');
+                $node->setAttribute('rel', 'stylesheet');
+                $node->setAttribute('href', $href);
+                $append = true;
+            }
+            foreach ($options as $name => $value) {
+                $node->setAttribute($name, $value);
+            }
+            if ($append === false) {
+                return;
+            }
+
+            $styles = $this->querySelectorAll('//link[@rel="stylesheet"]');
+            $refnode = null;
+            for ($i = 0, $max = $styles->length; $i < $max; $i++) {
+                $item = $styles->item($i);
+                if ($prepend) {
+                    $refnode = $item;
+                    break;
+                } elseif ($i === $max - 1) {
+                    $refnode = $item->nextSibling;
+                }
+            }
+
+            if (!is_null($refnode)) {
+                $this->insertBefore($node, $refnode);
+
+                return;
+            }
+
+            $this->appendChild($node);
+        }
+
         public function insertScript($src, $before)
         {
             $doc = $this->ownerDocument;
