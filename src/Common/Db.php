@@ -167,24 +167,24 @@ class Db
         if ($this->driver != 'sqlite' && $this->driver != 'sqlite2') {
             $this->dsn = "$driver:host=$host;port=$port;dbname=$source";
             if ($this->driver === 'mysql') {
-                $this->options[PDO::MYSQL_ATTR_LOCAL_INFILE] = true;
+                $this->options[Pdo\Mysql::ATTR_LOCAL_INFILE] = true;
 
                 // SSL Options
                 if (defined('MYSQL_SSL_CA')) {
-                    $this->options[PDO::MYSQL_ATTR_SSL_CA] = MYSQL_SSL_CA;
+                    $this->options[Pdo\Mysql::ATTR_SSL_CA] = MYSQL_SSL_CA;
                 }
                 if (defined('MYSQL_SSL_CERT')) {
-                    $this->options[PDO::MYSQL_ATTR_SSL_CERT] = MYSQL_SSL_CERT;
+                    $this->options[Pdo\Mysql::ATTR_SSL_CERT] = MYSQL_SSL_CERT;
                 }
                 if (defined('MYSQL_SSL_KEY')) {
-                    $this->options[PDO::MYSQL_ATTR_SSL_KEY] = MYSQL_SSL_KEY;
+                    $this->options[Pdo\Mysql::ATTR_SSL_KEY] = MYSQL_SSL_KEY;
                 }
                 if (defined('MYSQL_SSL_VERIFY_SERVER_CERT')) {
-                    $this->options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = MYSQL_SSL_VERIFY_SERVER_CERT;
+                    $this->options[Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT] = MYSQL_SSL_VERIFY_SERVER_CERT;
                 }
 
                 if (defined('MYSQL_TIMEZONE')) {
-                    $this->options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET SESSION time_zone='".MYSQL_TIMEZONE."'";
+                    $this->options[Pdo\Mysql::ATTR_INIT_COMMAND] = "SET SESSION time_zone='".MYSQL_TIMEZONE."'";
                 }
 
                 if (strpos($host, 'unix_socket:') === 0) {
@@ -194,7 +194,7 @@ class Db
             }
             if ($enc !== '') {
                 if (file_exists($enc)) {
-                    $this->options[PDO::MYSQL_ATTR_READ_DEFAULT_FILE] = $enc;
+                    $this->options[Pdo\Mysql::ATTR_READ_DEFAULT_FILE] = $enc;
                     $content = str_replace('#', ';', file_get_contents($enc));
                     $init = parse_ini_string($content, true);
                     if (isset($init['client']['default-character-set'])) {

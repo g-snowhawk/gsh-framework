@@ -38,7 +38,7 @@ class Parser
      */
     public function __construct($inifile)
     {
-        $this->configurations = parse_ini_file($inifile, true);
+        $this->configurations = parse_ini_file($inifile, true, INI_SCANNER_TYPED);
     }
 
     /**
